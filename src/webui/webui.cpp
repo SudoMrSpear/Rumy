@@ -303,10 +303,11 @@ void sendState(WiFiClient& c) {
   o.add(",\"phost\":");
   escaped(o, s.printerHost);
   o.add(",\"team\":%lu,\"wagent\":%u,\"wgoal\":%u,\"wonly\":%u,\"gsl\":%u,\"gucl\":%u,\"fut\":%u,"
-        "\"tc1\":\"%06lx\",\"tc2\":\"%06lx\"}",
+        "\"tc1\":\"%06lx\",\"tc2\":\"%06lx\",\"lang\":%u}",
         static_cast<unsigned long>(s.teamId), static_cast<unsigned>(s.wizAgent), static_cast<unsigned>(s.wizGoal),
         static_cast<unsigned>(s.wizOnlyOn), static_cast<unsigned>(s.goalSl), static_cast<unsigned>(s.goalUcl),
-        static_cast<unsigned>(s.football), static_cast<unsigned long>(s.teamC1), static_cast<unsigned long>(s.teamC2));
+        static_cast<unsigned>(s.football), static_cast<unsigned long>(s.teamC1), static_cast<unsigned long>(s.teamC2),
+        static_cast<unsigned>(s.lang));
   BulbState b;
   memset(&b, 0, sizeof(b));
   store::peekT(store::BULB, b);
@@ -395,6 +396,7 @@ bool applySettings(const char* body, size_t len) {
   numField(doc["gsl"], s.goalSl);
   numField(doc["gucl"], s.goalUcl);
   numField(doc["fut"], s.football);
+  numField(doc["lang"], s.lang);
   bool c1 = hexField(doc["tc1"], s.teamC1);
   bool c2 = hexField(doc["tc2"], s.teamC2);
   if (s.teamId != old.teamId && !(c1 && c2)) s.teamC1 = s.teamC2 = 0;
@@ -403,6 +405,7 @@ bool applySettings(const char* body, size_t len) {
   settings::set(s);
   if (s.teamId != old.teamId || s.football != old.football) match::refresh();
   if (s.football != old.football) net::refresh(SRC_BOARD);
+  if (s.lang != old.lang) app::request(app::ACT_REBOOT, 1500);
   bool moved = s.lat != old.lat || s.lon != old.lon || strcmp(s.city, old.city) != 0;
   if (moved) net::locationChanged();
   else if (s.quakeMinMag10 != old.quakeMinMag10) net::refresh(SRC_QUAKE);

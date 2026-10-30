@@ -6,6 +6,7 @@
 #include "screens.h"
 #include "theme.h"
 #include "ui.h"
+#include "text_tr.h"
 
 namespace scr_event {
 
@@ -23,8 +24,8 @@ void show() {
   int32_t today = clk::synced() ? clk::todayDayNum() : ev.computedDay;
   char buf[112];
   if (!ev.count) {
-    theme::setText(s_title, "Yaklaşan önemli gün yok");
-    theme::setText(s_sub, "Kişisel günlerini web arayüzünden ekleyebilirsin");
+    theme::setText(s_title, rc::L("Yaklaşan önemli gün yok", "No upcoming special days"));
+    theme::setText(s_sub, rc::L("Kişisel günlerini web arayüzünden ekleyebilirsin", "You can add your own days in the web app"));
     rumy::setMood(s_face, rumy::NORMAL);
     rumy::setAccessory(s_face, rc::ACC_NONE);
     return;

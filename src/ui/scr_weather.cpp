@@ -161,7 +161,7 @@ void buildItems() {
 void setTile(Tile& t, const char* sym, const char* title) {
   snprintf(t.head, sizeof(t.head), "%s  %s", sym, title);
   snprintf(t.value, sizeof(t.value), "--");
-  snprintf(t.sub, sizeof(t.sub), "Veri yok");
+  snprintf(t.sub, sizeof(t.sub), "%s", rc::L("Veri yok", "No data"));
   t.subColor = theme::C_TEXT2;
 }
 
@@ -173,39 +173,39 @@ void buildTiles() {
   char a[12];
   char b[12];
 
-  setTile(t[0], RS_THERMO, "Hissedilen");
+  setTile(t[0], RS_THERMO, rc::L("Hissedilen", "Feels like"));
   if (fv && n.feels10 != rc::NA16) {
     rc::formatTemp(t[0].value, sizeof(t[0].value), n.feels10);
     int diff = n.temp10 != rc::NA16 ? rc::roundTenths(n.feels10) - rc::roundTenths(n.temp10) : 0;
     snprintf(t[0].sub, sizeof(t[0].sub), "%s",
-             diff <= -2 ? "Olduğundan serin" : (diff >= 2 ? "Olduğundan sıcak" : "Gerçeğe yakın"));
+             diff <= -2 ? rc::L("Olduğundan serin", "Cooler than actual") : (diff >= 2 ? rc::L("Olduğundan sıcak", "Warmer than actual") : rc::L("Gerçeğe yakın", "Close to actual")));
   }
 
-  setTile(t[1], RS_DROP, "Nem");
+  setTile(t[1], RS_DROP, rc::L("Nem", "Humidity"));
   if (fv && n.rh != rc::NA8) {
     snprintf(t[1].value, sizeof(t[1].value), "%%%u", static_cast<unsigned>(n.rh));
-    snprintf(t[1].sub, sizeof(t[1].sub), "%s", n.rh >= 75 ? "Nemli" : (n.rh <= 30 ? "Kuru" : "Rahat"));
+    snprintf(t[1].sub, sizeof(t[1].sub), "%s", n.rh >= 75 ? rc::L("Nemli", "Humid") : (n.rh <= 30 ? rc::L("Kuru", "Dry") : rc::L("Rahat", "Comfortable")));
   }
 
-  setTile(t[2], RS_WIND, "Rüzgar");
+  setTile(t[2], RS_WIND, rc::L("Rüzgar", "Wind"));
   if (fv && n.wind10 != rc::NAU16) {
     uint16_t dir = n.windDir == rc::NAU16 ? 0 : n.windDir;
-    snprintf(t[2].value, sizeof(t[2].value), "%u km/sa", static_cast<unsigned>((n.wind10 + 5) / 10));
+    snprintf(t[2].value, sizeof(t[2].value), rc::L("%u km/sa", "%u km/h"), static_cast<unsigned>((n.wind10 + 5) / 10));
     if (n.gust10 != rc::NAU16) {
-      snprintf(t[2].sub, sizeof(t[2].sub), "%s · hamle %u", rc::windNameTr(dir), static_cast<unsigned>((n.gust10 + 5) / 10));
+      snprintf(t[2].sub, sizeof(t[2].sub), rc::L("%s · hamle %u", "%s · gusts %u"), rc::windNameTr(dir), static_cast<unsigned>((n.gust10 + 5) / 10));
     } else {
       snprintf(t[2].sub, sizeof(t[2].sub), "%s (%s)", rc::windNameTr(dir), rc::windAbbrTr(dir));
     }
   }
 
-  setTile(t[3], RS_GAUGE, "Basınç");
+  setTile(t[3], RS_GAUGE, rc::L("Basınç", "Pressure"));
   if (fv && n.press10 != rc::NAU16) {
     snprintf(t[3].value, sizeof(t[3].value), "%u hPa", static_cast<unsigned>((n.press10 + 5) / 10));
     uint16_t p = static_cast<uint16_t>((n.press10 + 5) / 10);
-    snprintf(t[3].sub, sizeof(t[3].sub), "%s", p < 1005 ? "Alçak basınç" : (p > 1022 ? "Yüksek basınç" : "Normal"));
+    snprintf(t[3].sub, sizeof(t[3].sub), "%s", p < 1005 ? rc::L("Alçak basınç", "Low pressure") : (p > 1022 ? rc::L("Yüksek basınç", "High pressure") : "Normal"));
   }
 
-  setTile(t[4], RS_SUN, "UV indeksi");
+  setTile(t[4], RS_SUN, rc::L("UV indeksi", "UV index"));
   uint8_t uv = fv ? n.uv10 : rc::NA8;
   if (uv == rc::NA8 && d.daily.valid) uv = d.daily.days[0].uvMax10;
   if (uv != rc::NA8) {
@@ -214,7 +214,7 @@ void buildTiles() {
     if (uv >= 60) t[4].subColor = theme::C_WARN;
   }
 
-  setTile(t[5], RS_EYE, "Görüş");
+  setTile(t[5], RS_EYE, rc::L("Görüş", "Visibility"));
   if (fv && n.visDam != rc::NAU16) {
     if (n.visDam >= 1000) {
       snprintf(t[5].value, sizeof(t[5].value), "%u km", static_cast<unsigned>((n.visDam + 50) / 100));
@@ -224,41 +224,41 @@ void buildTiles() {
       rc::formatDecimalTr(a, sizeof(a), (n.visDam + 5) / 10);
       snprintf(t[5].value, sizeof(t[5].value), "%s km", a);
     }
-    snprintf(t[5].sub, sizeof(t[5].sub), "%s", n.visDam >= 1000 ? "Açık" : (n.visDam >= 400 ? "Orta" : "Düşük"));
+    snprintf(t[5].sub, sizeof(t[5].sub), "%s", n.visDam >= 1000 ? rc::L("Açık", "Clear") : (n.visDam >= 400 ? rc::L("Orta", "Moderate") : rc::L("Düşük", "Poor")));
   }
 
-  setTile(t[6], RS_SUN, "Gün doğumu");
+  setTile(t[6], RS_SUN, rc::L("Gün doğumu", "Sunrise"));
   if (d.daily.valid && d.daily.days[0].sunrise) {
     rc::LocalTime r = rc::toLocal(d.daily.days[0].sunrise);
     rc::LocalTime s = rc::toLocal(d.daily.days[0].sunset);
     rc::formatHm(t[6].value, sizeof(t[6].value), r.hour, r.minute);
     rc::formatHm(b, sizeof(b), s.hour, s.minute);
-    snprintf(t[6].sub, sizeof(t[6].sub), "Gün batımı %s", b);
+    snprintf(t[6].sub, sizeof(t[6].sub), rc::L("Gün batımı %s", "Sunset %s"), b);
   }
 
-  setTile(t[7], RS_UMBRELLA, "Yağış");
+  setTile(t[7], RS_UMBRELLA, rc::L("Yağış", "Precipitation"));
   if (fv && n.precip100 != rc::NAU16) {
     rc::formatDecimalTr(a, sizeof(a), (n.precip100 + 5) / 10);
     snprintf(t[7].value, sizeof(t[7].value), "%s mm", a);
     if (d.daily.valid && d.daily.days[0].popMax != rc::NA8) {
-      snprintf(t[7].sub, sizeof(t[7].sub), "Bugün ihtimal %%%u", static_cast<unsigned>(d.daily.days[0].popMax));
+      snprintf(t[7].sub, sizeof(t[7].sub), rc::L("Bugün ihtimal %%%u", "Today's chance %u%%"), static_cast<unsigned>(d.daily.days[0].popMax));
     } else {
-      snprintf(t[7].sub, sizeof(t[7].sub), "Son 15 dakika");
+      snprintf(t[7].sub, sizeof(t[7].sub), "%s", rc::L("Son 15 dakika", "Last 15 minutes"));
     }
   }
 
-  setTile(t[8], RS_LEAF, "Hava kalitesi");
+  setTile(t[8], RS_LEAF, rc::L("Hava kalitesi", "Air quality"));
   if (d.air.valid && d.air.eaqi != rc::NAU16) {
     snprintf(t[8].value, sizeof(t[8].value), "%u", static_cast<unsigned>(d.air.eaqi));
     snprintf(t[8].sub, sizeof(t[8].sub), "%s", rc::aqiLevelTr(d.air.eaqi));
     if (rc::aqiLevelIndex(d.air.eaqi) >= 3) t[8].subColor = theme::C_WARN;
   }
 
-  setTile(t[9], RS_WATER, "Deniz suyu");
+  setTile(t[9], RS_WATER, rc::L("Deniz suyu", "Sea water"));
   if (d.sea.valid && d.sea.sst10 != rc::NA16) {
     rc::formatDecimalTr(a, sizeof(a), d.sea.sst10);
     snprintf(t[9].value, sizeof(t[9].value), "%s°", a);
-    snprintf(t[9].sub, sizeof(t[9].sub), "%s", d.sea.sst10 >= 200 ? "Yüzmeye uygun" : "Serin");
+    snprintf(t[9].sub, sizeof(t[9].sub), "%s", d.sea.sst10 >= 200 ? rc::L("Yüzmeye uygun", "Good for swimming") : rc::L("Serin", "Cool"));
   }
   if (s_grid) lv_obj_invalidate(s_grid);
 }
@@ -270,7 +270,7 @@ void updateHeader() {
   setText(s_city, buf);
   if (!d.fc.valid) {
     setText(s_temp, "--°");
-    setText(s_cond, "Veri bekleniyor");
+    setText(s_cond, rc::L("Veri bekleniyor", "Waiting for data"));
     setText(s_hilo, "");
   } else {
     rc::formatTemp(buf, sizeof(buf), d.fc.now.temp10);
@@ -281,10 +281,10 @@ void updateHeader() {
       rc::formatTemp(hi, sizeof(hi), d.daily.days[0].tmax10);
       rc::formatTemp(lo, sizeof(lo), d.daily.days[0].tmin10);
       rc::formatTemp(fl, sizeof(fl), d.fc.now.feels10);
-      snprintf(buf, sizeof(buf), "\xE2\x86\x91%s  \xE2\x86\x93%s  ·  Hissedilen %s", hi, lo, fl);
+      snprintf(buf, sizeof(buf), rc::L("\xE2\x86\x91%s  \xE2\x86\x93%s  ·  Hissedilen %s", "\xE2\x86\x91%s  \xE2\x86\x93%s  ·  Feels like %s"), hi, lo, fl);
     } else {
       rc::formatTemp(fl, sizeof(fl), d.fc.now.feels10);
-      snprintf(buf, sizeof(buf), "Hissedilen %s", fl);
+      snprintf(buf, sizeof(buf), rc::L("Hissedilen %s", "Feels like %s"), fl);
     }
     setText(s_hilo, buf);
   }
@@ -322,14 +322,14 @@ void updateFooter() {
   char buf[80];
   uint32_t t = d.fc.fetchedUtc;
   if (!t) {
-    setText(s_footer, "Son güncelleme: henüz yok · Open-Meteo");
+    setText(s_footer, rc::L("Son güncelleme: henüz yok · Open-Meteo", "Last update: none yet · Open-Meteo"));
     return;
   }
   rc::LocalTime lt = rc::toLocal(t);
   char hm[8];
   rc::formatHm(hm, sizeof(hm), lt.hour, lt.minute);
   bool stale = clk::synced() && clk::nowUtc() > t && clk::nowUtc() - t > 3600;
-  snprintf(buf, sizeof(buf), "Son güncelleme %s%s · Open-Meteo", hm, stale ? " (eski)" : "");
+  snprintf(buf, sizeof(buf), rc::L("Son güncelleme %s%s · Open-Meteo", "Last update %s%s · Open-Meteo"), hm, stale ? rc::L(" (eski)", " (stale)") : "");
   setText(s_footer, buf);
   lv_obj_set_style_text_color(s_footer, C(stale ? theme::C_WARN : theme::C_TEXT), 0);
 }
@@ -340,7 +340,7 @@ void drawRain(lv_event_t* e) {
   lv_area_t c;
   lv_obj_get_coords(obj, &c);
   const rc::WxMinutely& m = ui::data().fc.m15;
-  static const char* const kLbl[rc::MINUTELY] = {"Şimdi", "+15 dk", "+30 dk", "+45 dk"};
+  static const char* const kLbl[rc::MINUTELY] = {rc::L("Şimdi", "Now"), rc::L("+15 dk", "+15 min"), rc::L("+30 dk", "+30 min"), rc::L("+45 dk", "+45 min")};
   int32_t w = lv_area_get_width(&c);
   int32_t slot = w / rc::MINUTELY;
   int32_t base = c.y2 - S(16);
@@ -364,7 +364,7 @@ void drawRain(lv_event_t* e) {
 void drawItem(lv_layer_t* layer, const HourItem& it, int32_t x, int32_t y) {
   char buf[16];
   rc::LocalTime lt = rc::toLocal(it.t);
-  if (it.kind == IT_NOW) snprintf(buf, sizeof(buf), "Şimdi");
+  if (it.kind == IT_NOW) snprintf(buf, sizeof(buf), "%s", rc::L("Şimdi", "Now"));
   else if (it.kind == IT_HOUR) snprintf(buf, sizeof(buf), "%02u", static_cast<unsigned>(lt.hour));
   else rc::formatHm(buf, sizeof(buf), lt.hour, lt.minute);
   du::text(layer, theme::fontS(), C(it.kind == IT_NOW ? theme::C_TEXT : theme::C_TEXT2), LV_TEXT_ALIGN_CENTER, x,
@@ -380,7 +380,7 @@ void drawItem(lv_layer_t* layer, const HourItem& it, int32_t x, int32_t y) {
     du::text(layer, theme::fontM(), C(theme::C_TEXT), LV_TEXT_ALIGN_CENTER, x, y + S(66), x + HOUR_W - 1, buf);
   } else {
     du::text(layer, theme::fontS(), C(theme::C_TEXT2), LV_TEXT_ALIGN_CENTER, x, y + S(68), x + HOUR_W - 1,
-             it.kind == IT_SUNRISE ? "Doğum" : "Batım");
+             it.kind == IT_SUNRISE ? rc::L("Doğum", "Rise") : rc::L("Batım", "Set"));
   }
 }
 
@@ -391,7 +391,7 @@ void drawStrip(lv_event_t* e) {
   lv_obj_get_coords(obj, &c);
   if (!s_st || s_st->count == 0) {
     du::text(layer, theme::fontM(), C(theme::C_TEXT2), LV_TEXT_ALIGN_CENTER, c.x1, c.y1 + S(34), c.x2,
-             "Saatlik veri bekleniyor");
+             rc::L("Saatlik veri bekleniyor", "Waiting for hourly data"));
     return;
   }
   int32_t sx = lv_obj_get_scroll_x(s_hourScroll);
@@ -411,7 +411,7 @@ void drawDays(lv_event_t* e) {
   const ui::Data& d = ui::data();
   if (!d.daily.valid || d.daily.count == 0) {
     du::text(layer, theme::fontM(), C(theme::C_TEXT2), LV_TEXT_ALIGN_CENTER, c.x1, c.y1 + S(40), c.x2,
-             "Günlük veri bekleniyor");
+             rc::L("Günlük veri bekleniyor", "Waiting for daily data"));
     return;
   }
   int16_t lo = 32767, hi = -32767;
@@ -429,7 +429,7 @@ void drawDays(lv_event_t* e) {
     if (!du::visible(layer, y, y + DAY_ROW)) continue;
     if (i > 0) du::box(layer, c.x1 + S(10), y, c.x2 - S(10), y, C(theme::C_TEXT), LV_OPA_10, 0);
     int32_t dn = rc::localDayNum(w.date);
-    const char* name = dn == today ? "Bugün" : rc::dayShortTr(rc::weekdayFromDays(dn));
+    const char* name = dn == today ? rc::L("Bugün", "Today") : rc::dayShortTr(rc::weekdayFromDays(dn));
     du::text(layer, theme::fontM(), C(theme::C_TEXT), LV_TEXT_ALIGN_LEFT, c.x1 + S(12), y + S(6), c.x1 + S(66), name);
     du::image(layer, icons::get(rc::wmoIcon(w.code, true), icons::S24), c.x1 + S(68), y + S(3));
     if (w.popMax != rc::NA8 && w.popMax >= 20) {
@@ -569,14 +569,14 @@ lv_obj_t* create() {
   lv_obj_set_width(s_hilo, FW(296));
   theme::oneLine(s_hilo);
 
-  s_rainCard = card(s_scr, RS_UMBRELLA "  Sonraki 1 saat", S(104));
+  s_rainCard = card(s_scr, rc::L(RS_UMBRELLA "  Sonraki 1 saat", RS_UMBRELLA "  Next hour"), S(104));
   s_rainText = theme::makeLabel(s_rainCard, theme::fontM(), theme::C_TEXT);
   lv_obj_set_pos(s_rainText, S(12), S(26));
   lv_obj_set_width(s_rainText, CARD_W - S(24));
   theme::oneLine(s_rainText);
   s_rainChart = drawObj(s_rainCard, S(8), S(48), CARD_W - S(16), S(52), drawRain);
 
-  lv_obj_t* hours = card(s_scr, RS_CLOCK "  Saatlik tahmin", HOUR_H + S(30));
+  lv_obj_t* hours = card(s_scr, rc::L(RS_CLOCK "  Saatlik tahmin", RS_CLOCK "  Hourly forecast"), HOUR_H + S(30));
   s_hourScroll = theme::makeBox(hours);
   lv_obj_set_pos(s_hourScroll, S(6), S(26));
   lv_obj_set_size(s_hourScroll, CARD_W - S(12), HOUR_H);
@@ -588,7 +588,7 @@ lv_obj_t* create() {
   lv_obj_add_event_cb(s_hourScroll, stripScrolled, LV_EVENT_SCROLL, nullptr);
   s_hourStrip = drawObj(s_hourScroll, 0, 0, CARD_W - S(12), HOUR_H, drawStrip);
 
-  lv_obj_t* days = card(s_scr, RS_CALENDAR "  7 günlük tahmin", S(30) + DAY_ROW * rc::DAYS);
+  lv_obj_t* days = card(s_scr, rc::L(RS_CALENDAR "  7 günlük tahmin", RS_CALENDAR "  7-day forecast"), S(30) + DAY_ROW * rc::DAYS);
   s_days = drawObj(days, 0, S(26), CARD_W, DAY_ROW * rc::DAYS, drawDays);
 
   s_grid = drawObj(s_scr, 0, 0, CARD_W, 5 * TILE_H + 4 * TILE_GAP, drawGrid);

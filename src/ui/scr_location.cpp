@@ -8,6 +8,7 @@
 #include "settings/settings.h"
 #include "theme.h"
 #include "ui.h"
+#include "text_tr.h"
 
 namespace scr_location {
 
@@ -23,7 +24,7 @@ void showInfo() {
   int idx = static_cast<int>(lv_roller_get_selected(s_roller));
   const provinces::Province& p = provinces::at(idx);
   char buf[64];
-  snprintf(buf, sizeof(buf), "Plaka %02u\n%.3f K\n%.3f D", static_cast<unsigned>(p.plate),
+  snprintf(buf, sizeof(buf), rc::L("Plaka %02u\n%.3f K\n%.3f D", "Plate %02u\n%.3f N\n%.3f E"), static_cast<unsigned>(p.plate),
            static_cast<double>(p.lat), static_cast<double>(p.lon));
   setText(s_info, buf);
 }
@@ -46,7 +47,7 @@ void saveClick(lv_event_t* e) {
   settings::set(s);
   if (changed) {
     net::locationChanged();
-    ui::toast("Konum kaydedildi · hava durumu yenileniyor");
+    ui::toast(rc::L("Konum kaydedildi · hava durumu yenileniyor", "Location saved · refreshing weather"));
   }
   ui::back();
 }
@@ -73,7 +74,7 @@ lv_obj_t* create() {
   lv_obj_set_pos(bk, theme::S(6), theme::S(4));
   lv_obj_add_event_cb(bk, backClick, LV_EVENT_CLICKED, nullptr);
   lv_obj_t* title = theme::makeLabel(s_scr, theme::fontL(), theme::C_TEXT);
-  lv_label_set_text_static(title, RS_PIN "  Konum");
+  lv_label_set_text_static(title, rc::L(RS_PIN "  Konum", RS_PIN "  Location"));
   lv_obj_set_pos(title, theme::S(60), theme::S(9));
 
   size_t cap = 0;
@@ -108,12 +109,12 @@ lv_obj_t* create() {
   lv_label_set_long_mode(s_info, LV_LABEL_LONG_MODE_WRAP);
 
   lv_obj_t* hint = theme::makeLabel(s_scr, theme::fontS(), theme::C_TEXT3);
-  lv_label_set_text_static(hint, "İlçe veya tam koordinat için web arayüzünü kullan.");
+  lv_label_set_text_static(hint, rc::L("İlçe veya tam koordinat için web arayüzünü kullan.", "Use the web app for a district or exact coordinates."));
   lv_label_set_long_mode(hint, LV_LABEL_LONG_MODE_WRAP);
   lv_obj_set_width(hint, theme::FW(96));
   lv_obj_set_pos(hint, theme::S(220), theme::S(110));
 
-  lv_obj_t* save = theme::makeButton(s_scr, RS_OK "  Kaydet", theme::fontM());
+  lv_obj_t* save = theme::makeButton(s_scr, rc::L(RS_OK "  Kaydet", RS_OK "  Save"), theme::fontM());
   lv_obj_set_size(save, theme::FW(300), theme::S(42));
   lv_obj_set_pos(save, theme::S(10), theme::S(192));
   lv_obj_set_style_border_color(save, theme::col(theme::C_EYE), 0);

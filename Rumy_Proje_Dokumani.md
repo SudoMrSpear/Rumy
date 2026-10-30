@@ -1,5 +1,7 @@
 # Rumy — Proje Dokümanı
 
+[English](Rumy_Project_Document.md) · **Türkçe**
+
 **Kapsam:** Projenin başından bugüne (27 Eylül 2026) kadar yapılan her şey: ne yapıldı, hangi dille, hangi
 kütüphane ve araçlarla, nasıl ve neden öyle yapıldı. Kartta çalışan sürüm: **1.2.0** (1.1.0'dan sonra: Spotify
 ekranı, kulaklıklı Rumy, ritim takibi, hareketli uyku "z"leri, yeni ana ekran düzeni, ana ekranda dönen plaklı

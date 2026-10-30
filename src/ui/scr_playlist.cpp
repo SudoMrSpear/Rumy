@@ -8,6 +8,7 @@
 #include "screens.h"
 #include "theme.h"
 #include "ui.h"
+#include "text_tr.h"
 
 namespace scr_playlist {
 
@@ -82,7 +83,7 @@ void drawBack(lv_event_t* e) {
   const lv_font_t* f = theme::fontM();
   int32_t y = c.y1 + (HEAD_H - lv_font_get_line_height(f)) / 2;
   du::text(layer, f, C(theme::C_TEXT2), LV_TEXT_ALIGN_LEFT, c.x1 + S(10), y, c.x1 + S(30), RS_LEFT);
-  du::text(layer, f, C(theme::C_TEXT), LV_TEXT_ALIGN_LEFT, c.x1 + S(32), y, c.x2, "Çalma listelerim");
+  du::text(layer, f, C(theme::C_TEXT), LV_TEXT_ALIGN_LEFT, c.x1 + S(32), y, c.x2, rc::L("Çalma listelerim", "My playlists"));
 }
 
 void drawMix(lv_event_t* e) {
@@ -96,7 +97,7 @@ void drawMix(lv_event_t* e) {
   const lv_font_t* f = theme::fontS();
   int32_t y = c.y1 + (MIX_H - lv_font_get_line_height(f)) / 2;
   du::text(layer, f, C(on ? C_SPOTIFY : theme::C_TEXT3), LV_TEXT_ALIGN_LEFT, c.x1 + S(10), y, c.x1 + S(28), RS_RANDOM);
-  du::text(layer, f, C(on ? theme::C_TEXT : theme::C_TEXT2), LV_TEXT_ALIGN_LEFT, c.x1 + S(29), y, c.x2, "Karışık");
+  du::text(layer, f, C(on ? theme::C_TEXT : theme::C_TEXT2), LV_TEXT_ALIGN_LEFT, c.x1 + S(29), y, c.x2, rc::L("Karışık", "Shuffle"));
 }
 
 void drawCover(lv_layer_t* layer, int i, int32_t x, int32_t y) {
@@ -152,14 +153,14 @@ void drawRow(lv_layer_t* layer, const lv_area_t& c, const media::Playlists& p, i
   const char* sub = buf;
   uint32_t subColor = theme::C_TEXT2;
   if (start) {
-    sub = "Bilgisayarda başlatılıyor…";
+    sub = rc::L("Bilgisayarda başlatılıyor…", "Starting on the computer…");
     subColor = C_SPOTIFY;
   } else if (fail) {
-    sub = p.pickMsg[0] ? p.pickMsg : "Başlatılamadı";
+    sub = p.pickMsg[0] ? p.pickMsg : rc::L("Başlatılamadı", "Couldn't start");
     subColor = theme::C_NEON_RED;
   } else {
-    snprintf(buf, sizeof(buf), "%u şarkı%s", static_cast<unsigned>(it.total),
-             playing ? (media::state().playing ? " · çalıyor" : " · duraklatıldı") : "");
+    snprintf(buf, sizeof(buf), rc::L("%u şarkı%s", "%u songs%s"), static_cast<unsigned>(it.total),
+             playing ? (media::state().playing ? rc::L(" · çalıyor", " · playing") : rc::L(" · duraklatıldı", " · paused")) : "");
   }
   {
     du::Clip clip(layer, c.x1 + NAME_X, y, right, y + ROW_H - 1);
@@ -167,7 +168,7 @@ void drawRow(lv_layer_t* layer, const lv_area_t& c, const media::Playlists& p, i
       int32_t w = right - (c.x1 + NAME_X) + 1;
       char fitted[64];
       char clean[sizeof(it.name)];
-      const char* name = theme::printable(theme::fontM(), it.name, clean, sizeof(clean), "Bilinmeyen ad");
+      const char* name = theme::printable(theme::fontM(), it.name, clean, sizeof(clean), rc::L("Bilinmeyen ad", "Unknown title"));
       du::text(layer, theme::fontM(), C(playing ? C_SPOTIFY : theme::C_TEXT), LV_TEXT_ALIGN_LEFT, c.x1 + NAME_X,
                y + NAME_Y, right, fit(theme::fontM(), name, w, fitted, sizeof(fitted)));
       du::text(layer, theme::fontS(), C(subColor), LV_TEXT_ALIGN_LEFT, c.x1 + NAME_X, y + SUB_Y, right,
@@ -193,11 +194,11 @@ void drawEmpty(lv_layer_t* layer, const lv_area_t& c, const media::Playlists& p)
     int32_t y = c.y1 + S(18);
     du::text(layer, fl, C(C_SPOTIFY), LV_TEXT_ALIGN_CENTER, c.x1, y, c.x2, RS_SPOTIFY);
     y += lv_font_get_line_height(fl) + S(10);
-    du::text(layer, fm, C(theme::C_TEXT), LV_TEXT_ALIGN_CENTER, c.x1, y, c.x2, "Spotify hesabı bağlı değil");
+    du::text(layer, fm, C(theme::C_TEXT), LV_TEXT_ALIGN_CENTER, c.x1, y, c.x2, rc::L("Spotify hesabı bağlı değil", "Spotify account not linked"));
     y += lv_font_get_line_height(fm) + S(8);
-    du::text(layer, fs, C(theme::C_TEXT2), LV_TEXT_ALIGN_CENTER, c.x1, y, c.x2, "Bilgisayarda bir kez giriş yapılınca");
+    du::text(layer, fs, C(theme::C_TEXT2), LV_TEXT_ALIGN_CENTER, c.x1, y, c.x2, rc::L("Bilgisayarda bir kez giriş yapılınca", "After you sign in once on the computer,"));
     y += lv_font_get_line_height(fs) + S(2);
-    du::text(layer, fs, C(theme::C_TEXT2), LV_TEXT_ALIGN_CENTER, c.x1, y, c.x2, "listelerin burada görünür.");
+    du::text(layer, fs, C(theme::C_TEXT2), LV_TEXT_ALIGN_CENTER, c.x1, y, c.x2, rc::L("listelerin burada görünür.", "your playlists appear here."));
     y += lv_font_get_line_height(fs) + S(12);
     int32_t bh = S(30);
     du::box(layer, c.x1 + S(40), y, c.x2 - S(40), y + bh, C(theme::C_BORDER), LV_OPA_COVER, S(10));
@@ -210,12 +211,12 @@ void drawEmpty(lv_layer_t* layer, const lv_area_t& c, const media::Playlists& p)
     int32_t y = mid - lv_font_get_line_height(fl) - S(4);
     du::text(layer, fl, C(theme::C_NEON_RED), LV_TEXT_ALIGN_CENTER, c.x1, y, c.x2, RS_WARNING);
     du::text(layer, fm, C(theme::C_TEXT), LV_TEXT_ALIGN_CENTER, c.x1, mid + S(4), c.x2,
-             p.msg[0] ? p.msg : "Listeler alınamadı");
+             p.msg[0] ? p.msg : rc::L("Listeler alınamadı", "Couldn't load playlists"));
     return;
   }
-  const char* txt = "Listeler yükleniyor…";
-  if (!media::state().link) txt = "Bilgisayar bağlı değil";
-  else if (p.status == rc::PLS_READY) txt = "Spotify'da çalma listesi yok";
+  const char* txt = rc::L("Listeler yükleniyor…", "Loading playlists…");
+  if (!media::state().link) txt = rc::L("Bilgisayar bağlı değil", "Computer not connected");
+  else if (p.status == rc::PLS_READY) txt = rc::L("Spotify'da çalma listesi yok", "No playlists in Spotify");
   du::text(layer, fm, C(theme::C_TEXT2), LV_TEXT_ALIGN_CENTER, c.x1, mid - lv_font_get_line_height(fm), c.x2, txt);
 }
 

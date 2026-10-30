@@ -11,6 +11,7 @@
 #include "theme.h"
 #include "timeutil.h"
 #include "ui.h"
+#include "text_tr.h"
 
 namespace scr_match {
 
@@ -57,7 +58,7 @@ void drawHead(lv_event_t* e) {
   lv_obj_get_coords(obj, &c);
   const rc::Match& m = M();
   char buf[64];
-  if (!m.valid) snprintf(buf, sizeof(buf), "Maç");
+  if (!m.valid) snprintf(buf, sizeof(buf), "%s", rc::L("Maç", "Match"));
   else if (m.venue[0]) snprintf(buf, sizeof(buf), "%s · %s", rc::matchLeagueTr(m.league), m.venue);
   else snprintf(buf, sizeof(buf), "%s", rc::matchLeagueTr(m.league));
   const lv_font_t* fs = theme::fontS();
@@ -83,7 +84,7 @@ void drawBox(lv_event_t* e) {
   if (!m.valid) {
     du::box(layer, c.x1, c.y1, c.x2, c.y2, C(theme::C_SURFACE2), LV_OPA_COVER, S(14));
     int32_t y = c.y1 + (lv_area_get_height(&c) - lv_font_get_line_height(fm)) / 2;
-    du::text(layer, fm, C(theme::C_TEXT2), LV_TEXT_ALIGN_CENTER, c.x1, y, c.x2, "Yaklaşan maç bulunamadı");
+    du::text(layer, fm, C(theme::C_TEXT2), LV_TEXT_ALIGN_CENTER, c.x1, y, c.x2, rc::L("Yaklaşan maç bulunamadı", "No upcoming match found"));
     return;
   }
   du::box(layer, c.x1, c.y1, c.x2, c.y2, C(theme::team()), LV_OPA_COVER, S(14));
@@ -114,7 +115,7 @@ void drawBox(lv_event_t* e) {
     du::box(layer, sx + S(22), dy - S(4), sx + S(29), dy + S(3), C(theme::C_NEON_RED), LV_OPA_COVER, LV_RADIUS_CIRCLE);
     du::text(layer, fl, C(theme::C_TEXT), LV_TEXT_ALIGN_RIGHT, c.x1, ly, rx, m.clock);
   } else if (m.phase == rc::MP_HALF) {
-    du::text(layer, fl, C(theme::C_TEXT2), LV_TEXT_ALIGN_RIGHT, c.x1, ly, rx, "İY");
+    du::text(layer, fl, C(theme::C_TEXT2), LV_TEXT_ALIGN_RIGHT, c.x1, ly, rx, rc::L("İY", "HT"));
   } else if (m.phase == rc::MP_POST) {
     du::text(layer, fl, C(theme::C_TEXT2), LV_TEXT_ALIGN_RIGHT, c.x1, ly, rx, "MS");
   } else {
@@ -136,7 +137,7 @@ void drawTableLine(lv_layer_t* layer, const lv_area_t& c, const rc::Table& t) {
   const lv_font_t* fs = theme::fontS();
   const rc::TableRow& r = t.rows[t.ours];
   char buf[96];
-  snprintf(buf, sizeof(buf), "%u. sıra · %u puan · %uG %uB %uM · averaj %+d", static_cast<unsigned>(r.rank),
+  snprintf(buf, sizeof(buf), rc::L("%u. sıra · %u puan · %uG %uB %uM · averaj %+d", "#%u · %u pts · %uW %uD %uL · GD %+d"), static_cast<unsigned>(r.rank),
            static_cast<unsigned>(r.points), static_cast<unsigned>(t.wins), static_cast<unsigned>(t.ties),
            static_cast<unsigned>(t.losses), static_cast<int>(t.gd));
   int32_t gap = match_ui::leagueLogo(t.league) ? LEAGUE_PX + S(6) : 0;
@@ -159,8 +160,8 @@ void drawTableGrid(lv_layer_t* layer, const lv_area_t& c, const rc::Table& t) {
   lv_color_t dim = C(theme::C_TEXT3);
   if (match_ui::leagueLogo(t.league)) du::image(layer, match_ui::leagueLogo(t.league), c.x1 + S(10), c.y1 - S(2));
   du::text(layer, fs, dim, LV_TEXT_ALIGN_LEFT, xName, c.y1, xPlayed, rc::matchLeagueTr(t.league));
-  du::text(layer, fs, dim, LV_TEXT_ALIGN_RIGHT, c.x1, c.y1, xPlayed, "O");
-  du::text(layer, fs, dim, LV_TEXT_ALIGN_RIGHT, c.x1, c.y1, xPts, "P");
+  du::text(layer, fs, dim, LV_TEXT_ALIGN_RIGHT, c.x1, c.y1, xPlayed, rc::L("O", "P"));
+  du::text(layer, fs, dim, LV_TEXT_ALIGN_RIGHT, c.x1, c.y1, xPts, rc::L("P", "Pts"));
   int32_t ty = (GRID_ROW - lv_font_get_line_height(fm)) / 2;
   for (int i = 0; i < t.n; i++) {
     const rc::TableRow& r = t.rows[i];
@@ -202,11 +203,11 @@ void drawList(lv_event_t* e) {
   const lv_font_t* fs = theme::fontS();
   if (!m.valid || m.n == 0) {
     char buf[64];
-    if (!ui::data().settings.football) snprintf(buf, sizeof(buf), "Maç takibi kapalı · uygulamadan açılır");
-    else if (!ui::data().settings.teamId) snprintf(buf, sizeof(buf), "Takım seçilmedi · uygulamada Futbol");
-    else if (!m.valid) snprintf(buf, sizeof(buf), "ESPN fikstüründe yaklaşan maç yok");
-    else if (m.phase == rc::MP_PRE) snprintf(buf, sizeof(buf), "Maç başlayınca olaylar burada görünür");
-    else snprintf(buf, sizeof(buf), "Henüz gol, kart ya da değişiklik yok");
+    if (!ui::data().settings.football) snprintf(buf, sizeof(buf), "%s", rc::L("Maç takibi kapalı · uygulamadan açılır", "Match tracking off · enable it in the app"));
+    else if (!ui::data().settings.teamId) snprintf(buf, sizeof(buf), "%s", rc::L("Takım seçilmedi · uygulamada Futbol", "No team selected · Football in the app"));
+    else if (!m.valid) snprintf(buf, sizeof(buf), "%s", rc::L("ESPN fikstüründe yaklaşan maç yok", "No upcoming match in ESPN fixtures"));
+    else if (m.phase == rc::MP_PRE) snprintf(buf, sizeof(buf), "%s", rc::L("Maç başlayınca olaylar burada görünür", "Events appear here once the match starts"));
+    else snprintf(buf, sizeof(buf), "%s", rc::L("Henüz gol, kart ya da değişiklik yok", "No goals, cards or subs yet"));
     du::text(layer, fs, C(theme::C_TEXT3), LV_TEXT_ALIGN_CENTER, c.x1, c.y1 + S(12), c.x2, buf);
     return;
   }
@@ -267,7 +268,7 @@ void drawBoardHead(lv_layer_t* layer, const lv_area_t& c, int32_t y, const rc::B
     lx += LEAGUE_PX + S(6);
   }
   char buf[48];
-  snprintf(buf, sizeof(buf), "%s · bugün", rc::matchLeagueTr(league));
+  snprintf(buf, sizeof(buf), rc::L("%s · bugün", "%s · today"), rc::matchLeagueTr(league));
   du::text(layer, fs, C(theme::C_TEXT2), LV_TEXT_ALIGN_LEFT, lx, hy, c.x2 - S(70), buf);
   int live = 0;
   int done = 0;
@@ -279,7 +280,7 @@ void drawBoardHead(lv_layer_t* layer, const lv_area_t& c, int32_t y, const rc::B
     live += g.phase == rc::MP_LIVE || g.phase == rc::MP_HALF;
     done += g.phase == rc::MP_POST;
   }
-  if (live) snprintf(buf, sizeof(buf), "%d canlı", live);
+  if (live) snprintf(buf, sizeof(buf), rc::L("%d canlı", "%d live"), live);
   else if (done == all) snprintf(buf, sizeof(buf), "bitti");
   else buf[0] = 0;
   du::text(layer, fs, C(live ? theme::C_NEON_RED : theme::C_TEXT3), LV_TEXT_ALIGN_RIGHT, c.x1, hy, c.x2 - S(10), buf);

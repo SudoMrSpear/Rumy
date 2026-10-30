@@ -3,6 +3,7 @@
 
 #include "events_calc.h"
 #include "nager.h"
+#include "text_tr.h"
 #include "timeutil.h"
 
 static uint8_t g_mem[8192];
@@ -37,6 +38,25 @@ static void test_republic_day_countdown() {
   TEST_ASSERT_EQUAL_STRING("Cumhuriyet Bayramı'na 34 gün", buf);
   rc::eventSubtitle(items[0], buf, sizeof(buf));
   TEST_ASSERT_EQUAL_STRING("29 Ekim · 103. yıl", buf);
+}
+
+static void test_english_events() {
+  rc::setLang(rc::LANG_EN);
+  int32_t today = day(2026, 9, 25);
+  rc::EventOcc items[rc::MAX_UPCOMING];
+  int n = rc::collectEvents(nullptr, 0, nullptr, 0, today, 40, items, rc::MAX_UPCOMING);
+  TEST_ASSERT_EQUAL_INT(1, n);
+  TEST_ASSERT_EQUAL_STRING("Republic Day", items[0].name);
+  char buf[96];
+  rc::eventCountdownText(items[0], today, buf, sizeof(buf));
+  TEST_ASSERT_EQUAL_STRING("Republic Day · 34 days", buf);
+  rc::eventCountdownText(items[0], day(2026, 10, 29), buf, sizeof(buf));
+  TEST_ASSERT_EQUAL_STRING("Today: Republic Day", buf);
+  rc::eventGreeting(items[0], buf, sizeof(buf));
+  TEST_ASSERT_EQUAL_STRING("Happy Republic Day!", buf);
+  rc::eventSubtitle(items[0], buf, sizeof(buf));
+  TEST_ASSERT_EQUAL_STRING("29 October · year 103", buf);
+  rc::setLang(rc::LANG_TR);
 }
 
 static void test_tiers() {
@@ -164,6 +184,7 @@ int main() {
   RUN_TEST(test_civil_roundtrip);
   RUN_TEST(test_republic_day_countdown);
   RUN_TEST(test_tiers);
+  RUN_TEST(test_english_events);
   RUN_TEST(test_today_and_tomorrow_text);
   RUN_TEST(test_commemoration_is_calm);
   RUN_TEST(test_religious_and_year_wrap);

@@ -6,6 +6,7 @@
 #include <string.h>
 
 #include "afad.h"
+#include "text_tr.h"
 
 namespace rc {
 
@@ -326,14 +327,14 @@ bool k2HostValid(const char* host) {
 
 const char* k2PhaseTr(K2Phase p) {
   switch (p) {
-    case K2_OFFLINE: return "Bağlantı yok";
-    case K2_PRINTING: return "Yazdırılıyor";
-    case K2_PAUSED: return "Duraklatıldı";
-    case K2_DONE: return "Tamamlandı";
-    case K2_STOPPED: return "Durduruldu";
-    case K2_ERROR: return "Hata";
-    case K2_SELFTEST: return "Kalibrasyon";
-    default: return "Hazır";
+    case K2_OFFLINE: return rc::L("Bağlantı yok", "Offline");
+    case K2_PRINTING: return rc::L("Yazdırılıyor", "Printing");
+    case K2_PAUSED: return rc::L("Duraklatıldı", "Paused");
+    case K2_DONE: return rc::L("Tamamlandı", "Complete");
+    case K2_STOPPED: return rc::L("Durduruldu", "Stopped");
+    case K2_ERROR: return rc::L("Hata", "Error");
+    case K2_SELFTEST: return rc::L("Kalibrasyon", "Calibrating");
+    default: return rc::L("Hazır", "Ready");
   }
 }
 

@@ -7,6 +7,16 @@
 
 namespace rc {
 
+enum Lang : uint8_t {
+  LANG_TR = 0,
+  LANG_EN = 1,
+};
+
+void setLang(uint8_t lang);
+uint8_t lang();
+inline bool langEn() { return lang() == LANG_EN; }
+inline const char* L(const char* tr, const char* en) { return langEn() ? en : tr; }
+
 const char* dayNameTr(uint8_t wday);
 const char* dayShortTr(uint8_t wday);
 const char* monthNameTr(uint8_t month);

@@ -8,6 +8,7 @@
 #include "screens.h"
 #include "theme.h"
 #include "ui.h"
+#include "text_tr.h"
 
 namespace scr_media {
 
@@ -87,12 +88,12 @@ void drawHead(lv_event_t* e) {
   lv_area_t c;
   lv_obj_get_coords(obj, &c);
   const media::State& m = media::state();
-  const char* app = m.app[0] ? m.app : "Müzik";
+  const char* app = m.app[0] ? m.app : rc::L("Müzik", "Music");
   bool spotify = !strncmp(app, "Spotify", 7);
   du::text(layer, theme::fontM(), C(spotify ? C_SPOTIFY : accent()), LV_TEXT_ALIGN_LEFT, c.x1, c.y1, c.x1 + S(20),
            spotify ? RS_SPOTIFY : RS_MUSIC);
   char buf[40];
-  snprintf(buf, sizeof(buf), "%s%s", app, m.active && !m.playing ? " · duraklatıldı" : "");
+  snprintf(buf, sizeof(buf), "%s%s", app, m.active && !m.playing ? rc::L(" · duraklatıldı", " · paused") : "");
   du::text(layer, theme::fontS(), C(theme::C_TEXT2), LV_TEXT_ALIGN_LEFT, c.x1 + S(22), c.y1 + S(2), c.x2, buf);
 }
 
@@ -110,7 +111,7 @@ void drawVol(lv_layer_t* layer, int32_t x1, int32_t x2, int32_t ty) {
     du::box(layer, x1, ty, x1 + LV_MAX(w, TRACK_H) - 1, ty + TRACK_H, C(theme::C_TEXT), LV_OPA_COVER, S(3));
   }
   const lv_font_t* f = theme::fontS();
-  du::text(layer, f, C(theme::C_TEXT2), LV_TEXT_ALIGN_LEFT, x1, ty + S(10), x2, RS_VOL_UP "  Spotify sesi");
+  du::text(layer, f, C(theme::C_TEXT2), LV_TEXT_ALIGN_LEFT, x1, ty + S(10), x2, rc::L(RS_VOL_UP "  Spotify sesi", RS_VOL_UP "  Spotify volume"));
   char buf[8];
   if (v >= 0) snprintf(buf, sizeof(buf), "%%%d", v);
   else snprintf(buf, sizeof(buf), "--");
@@ -280,18 +281,18 @@ void refresh() {
   const media::State& m = media::state();
   uint32_t acc = accent();
   if (!m.link) {
-    lv_label_set_text_static(s_title, "Bilgisayar bağlı değil");
+    lv_label_set_text_static(s_title, rc::L("Bilgisayar bağlı değil", "Computer not connected"));
     lv_label_set_text_static(s_artist, "spotify_bridge.py");
-    lv_label_set_text_static(s_album, RUMY_PI ? "bilgisayarda köprüyü --pi ile çalıştır"
-                                              : "USB'den bağlı bilgisayarda köprüyü çalıştır");
+    lv_label_set_text_static(s_album, RUMY_PI ? rc::L("bilgisayarda köprüyü --pi ile çalıştır", "run the bridge with --pi on your computer")
+                                              : rc::L("USB'den bağlı bilgisayarda köprüyü çalıştır", "run the bridge on the USB-connected computer"));
   } else if (!m.active) {
-    lv_label_set_text_static(s_title, "Müzik çalmıyor");
-    lv_label_set_text_static(s_artist, "Spotify'da bir şarkı aç");
+    lv_label_set_text_static(s_title, rc::L("Müzik çalmıyor", "No music playing"));
+    lv_label_set_text_static(s_artist, rc::L("Spotify'da bir şarkı aç", "Play a song in Spotify"));
     lv_label_set_text_static(s_album, "");
   } else {
     char buf[sizeof(m.title)];
     lv_label_set_text(s_title, theme::printable(lv_obj_get_style_text_font(s_title, LV_PART_MAIN), m.title, buf,
-                                                sizeof(buf), "Bilinmeyen ad"));
+                                                sizeof(buf), rc::L("Bilinmeyen ad", "Unknown title")));
     lv_label_set_text(s_artist, theme::printable(lv_obj_get_style_text_font(s_artist, LV_PART_MAIN), m.artist, buf,
                                                  sizeof(buf), ""));
     lv_label_set_text(s_album, theme::printable(lv_obj_get_style_text_font(s_album, LV_PART_MAIN), m.album, buf,

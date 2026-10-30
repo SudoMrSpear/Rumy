@@ -233,15 +233,15 @@ void fillCard(Card c, const ui::Data& d, char* icon, size_t icap, char* text, si
       if (t10 == rc::NA16) snprintf(a, sizeof(a), "--°");
       else rc::formatTemp(a, sizeof(a), t10);
       snprintf(icon, icap, RS_THERMO);
-      if (d.fc.now.rh == rc::NA8) snprintf(text, tcap, "%s %s", feels ? "Hissedilen" : "Sıcaklık", a);
-      else snprintf(text, tcap, "%s %s · Nem %%%u", feels ? "Hissedilen" : "Sıcaklık", a, static_cast<unsigned>(d.fc.now.rh));
+      if (d.fc.now.rh == rc::NA8) snprintf(text, tcap, "%s %s", feels ? rc::L("Hissedilen", "Feels like") : rc::L("Sıcaklık", "Temperature"), a);
+      else snprintf(text, tcap, rc::L("%s %s · Nem %%%u", "%s %s · Humidity %u%%"), feels ? rc::L("Hissedilen", "Feels like") : rc::L("Sıcaklık", "Temperature"), a, static_cast<unsigned>(d.fc.now.rh));
       color = theme::C_NEON_ORANGE;
       break;
     }
     case CARD_WIND: {
       uint16_t dir = d.fc.now.windDir == rc::NAU16 ? 0 : d.fc.now.windDir;
       snprintf(icon, icap, RS_WIND);
-      snprintf(text, tcap, "%s (%s) %u km/sa · hamle %u", rc::windNameTr(dir), rc::windAbbrTr(dir),
+      snprintf(text, tcap, rc::L("%s (%s) %u km/sa · hamle %u", "%s (%s) %u km/h · gusts %u"), rc::windNameTr(dir), rc::windAbbrTr(dir),
                static_cast<unsigned>((d.fc.now.wind10 + 5) / 10),
                static_cast<unsigned>(d.fc.now.gust10 == rc::NAU16 ? 0 : (d.fc.now.gust10 + 5) / 10));
       color = theme::C_NEON_CYAN;
@@ -255,12 +255,12 @@ void fillCard(Card c, const ui::Data& d, char* icon, size_t icap, char* text, si
       snprintf(icon, icap, RS_UMBRELLA);
       color = theme::C_NEON_BLUE;
       if (maxPop >= 50) {
-        snprintf(text, tcap, "Yağış %%%u · Şemsiye al!", static_cast<unsigned>(maxPop));
+        snprintf(text, tcap, rc::L("Yağış %%%u · Şemsiye al!", "Rain %u%% · Take an umbrella!"), static_cast<unsigned>(maxPop));
         color = theme::C_NEON_YELLOW;
       } else if (maxPop >= 20) {
-        snprintf(text, tcap, "6 saatte yağış ihtimali %%%u", static_cast<unsigned>(maxPop));
+        snprintf(text, tcap, rc::L("6 saatte yağış ihtimali %%%u", "Rain chance in 6 h: %u%%"), static_cast<unsigned>(maxPop));
       } else {
-        snprintf(text, tcap, "6 saat yağış beklenmiyor");
+        snprintf(text, tcap, "%s", rc::L("6 saat yağış beklenmiyor", "No rain expected for 6 h"));
       }
       break;
     }
@@ -279,14 +279,14 @@ void fillCard(Card c, const ui::Data& d, char* icon, size_t icap, char* text, si
     case CARD_SEA: {
       rc::formatDecimalTr(a, sizeof(a), d.sea.sst10);
       snprintf(icon, icap, RS_WATER);
-      snprintf(text, tcap, "Deniz suyu %s° · %s", a, d.settings.city);
+      snprintf(text, tcap, rc::L("Deniz suyu %s° · %s", "Sea water %s° · %s"), a, d.settings.city);
       fitFrom = partEnd(text, " · ") + 4;
       color = theme::C_NEON_CYAN;
       break;
     }
     case CARD_AIR: {
       snprintf(icon, icap, RS_LEAF);
-      snprintf(text, tcap, "Hava kalitesi %s · AQI %u", rc::aqiLevelTr(d.air.eaqi), static_cast<unsigned>(d.air.eaqi));
+      snprintf(text, tcap, rc::L("Hava kalitesi %s · AQI %u", "Air quality %s · AQI %u"), rc::aqiLevelTr(d.air.eaqi), static_cast<unsigned>(d.air.eaqi));
       color = rc::aqiLevelIndex(d.air.eaqi) >= 3 ? theme::C_NEON_ORANGE : theme::C_NEON_GREEN;
       break;
     }
@@ -299,7 +299,8 @@ void fillCard(Card c, const ui::Data& d, char* icon, size_t icap, char* text, si
       const char* sep = strstr(text, " · ");
       if (sep) {
         fitTo = static_cast<size_t>(sep - text);
-      } else if (strncmp(text, "Bugün: ", 8) && strncmp(text, "Yarın: ", 8)) {
+      } else if (strncmp(text, rc::L("Bugün: ", "Today: "), strlen(rc::L("Bugün: ", "Today: "))) &&
+                 strncmp(text, rc::L("Yarın: ", "Tomorrow: "), strlen(rc::L("Yarın: ", "Tomorrow: ")))) {
         const char* last = strrchr(text, ' ');
         const char* num = last;
         while (num && num > text && num[-1] != ' ') num--;
@@ -326,7 +327,7 @@ void fillCard(Card c, const ui::Data& d, char* icon, size_t icap, char* text, si
         }
       } else {
         match_ui::scoreText(m, t, sizeof(t));
-        if (m.phase == rc::MP_POST) snprintf(text, tcap, "Maç bitti · %s", t);
+        if (m.phase == rc::MP_POST) snprintf(text, tcap, rc::L("Maç bitti · %s", "Full time · %s"), t);
         else snprintf(text, tcap, "%s · %s", t, m.clock);
       }
       break;
@@ -339,22 +340,22 @@ void fillCard(Card c, const ui::Data& d, char* icon, size_t icap, char* text, si
       snprintf(icon, icap, RS_CUBE);
       color = theme::C_NEON_CYAN;
       if (printerProblem(d)) {
-        if (rc::k2Runout(p.st)) snprintf(text, tcap, "Yazıcı: filament bitti, baskı bekliyor");
-        else snprintf(text, tcap, "Yazıcı hatası · kod %ld", static_cast<long>(p.st.errCode));
+        if (rc::k2Runout(p.st)) snprintf(text, tcap, "%s", rc::L("Yazıcı: filament bitti, baskı bekliyor", "Printer: out of filament, print paused"));
+        else snprintf(text, tcap, rc::L("Yazıcı hatası · kod %ld", "Printer error · code %ld"), static_cast<long>(p.st.errCode));
         color = theme::C_NEON_RED;
       } else if (p.phase == rc::K2_DONE) {
         rc::k2JobName(p.st.file, name, sizeof(name), mat, sizeof(mat));
-        snprintf(text, tcap, "Baskı bitti: %s", name[0] ? name : "yazıcı");
+        snprintf(text, tcap, rc::L("Baskı bitti: %s", "Print done: %s"), name[0] ? name : rc::L("yazıcı", "printer"));
         fitFrom = partEnd(text, ": ") + 2;
         color = theme::C_NEON_GREEN;
       } else if (p.phase == rc::K2_PAUSED) {
-        snprintf(text, tcap, "Baskı duraklatıldı · %%%u", static_cast<unsigned>(p.st.progress));
+        snprintf(text, tcap, rc::L("Baskı duraklatıldı · %%%u", "Print paused · %u%%"), static_cast<unsigned>(p.st.progress));
         color = theme::C_NEON_YELLOW;
       } else if (p.st.leftS) {
         rc::durationTr(p.st.leftS, dur, sizeof(dur));
-        snprintf(text, tcap, "Baskı %%%u · %s kaldı", static_cast<unsigned>(p.st.progress), dur);
+        snprintf(text, tcap, rc::L("Baskı %%%u · %s kaldı", "Print %u%% · %s left"), static_cast<unsigned>(p.st.progress), dur);
       } else {
-        snprintf(text, tcap, "Baskı %%%u · %s", static_cast<unsigned>(p.st.progress), rc::k2PhaseTr(static_cast<rc::K2Phase>(p.phase)));
+        snprintf(text, tcap, rc::L("Baskı %%%u · %s", "Print %u%% · %s"), static_cast<unsigned>(p.st.progress), rc::k2PhaseTr(static_cast<rc::K2Phase>(p.phase)));
       }
       break;
     }
@@ -381,16 +382,16 @@ void fillCard(Card c, const ui::Data& d, char* icon, size_t icap, char* text, si
       if (d.fc.fetchedUtc) {
         rc::LocalTime lt = rc::toLocal(d.fc.fetchedUtc);
         rc::formatHm(a, sizeof(a), lt.hour, lt.minute);
-        snprintf(text, tcap, "Bağlantı yok · son veri %s", a);
+        snprintf(text, tcap, rc::L("Bağlantı yok · son veri %s", "Offline · last data %s"), a);
       } else {
-        snprintf(text, tcap, "İnternet bağlantısı bekleniyor");
+        snprintf(text, tcap, "%s", rc::L("İnternet bağlantısı bekleniyor", "Waiting for internet"));
       }
       color = theme::C_NEON_RED;
       break;
     }
     case CARD_SD: {
       snprintf(icon, icap, RS_SD);
-      snprintf(text, tcap, "SD kart yok · kişisel günler kaydedilmez");
+      snprintf(text, tcap, "%s", rc::L("SD kart yok · kişisel günler kaydedilmez", "No SD card · personal days won't be saved"));
       color = theme::C_NEON_ORANGE;
       break;
     }
@@ -422,7 +423,7 @@ void showCard(bool advance) {
   }
   if (pick == CARD_COUNT) {
     setText(s_cardIcon, RS_CLOCK);
-    setText(s_cardText, "Veriler yükleniyor…");
+    setText(s_cardText, rc::L("Veriler yükleniyor…", "Loading data…"));
     return;
   }
   if (advance && pick <= s_cardIdx) s_rotation++;
@@ -599,7 +600,7 @@ void drawDate(lv_event_t* e) {
   lv_area_t c;
   lv_obj_get_coords(obj, &c);
   if (!clk::synced()) {
-    const char* wait = "Saat eşitleniyor";
+    const char* wait = rc::L("Saat eşitleniyor", "Syncing clock");
     const lv_font_t* f = textW(theme::fontL(), wait) <= c.x2 - c.x1 - S(2) ? theme::fontL() : theme::fontM();
     int32_t y = c.y1 + (lv_area_get_height(&c) - lv_font_get_line_height(f)) / 2;
     du::text(layer, f, C(theme::C_TEXT3), LV_TEXT_ALIGN_LEFT, c.x1 + S(2), y, c.x2, wait);
@@ -629,7 +630,7 @@ bool npFits() { return s_npTitleW <= NP_RIGHT - npTextX() + 1; }
 
 void npMeasure(const char* title) {
   const lv_font_t* f = theme::fontS();
-  const char* shown = theme::printable(f, title, s_npTitle, sizeof(s_npTitle), "Bilinmeyen ad");
+  const char* shown = theme::printable(f, title, s_npTitle, sizeof(s_npTitle), rc::L("Bilinmeyen ad", "Unknown title"));
   if (shown != s_npTitle) snprintf(s_npTitle, sizeof(s_npTitle), "%s", shown);
   const char* s = s_npTitle;
   const int32_t cap = static_cast<int32_t>(sizeof(s_npPos)) / static_cast<int32_t>(sizeof(s_npPos[0])) - 1;
@@ -670,7 +671,7 @@ void drawNowPlaying(lv_event_t* e) {
   if (!s_npShown) {
     du::image(layer, RECORD_IMAGES[0], NP_X, c.y1, LV_OPA_40);
     du::text(layer, theme::fontS(), C(theme::C_TEXT3), LV_TEXT_ALIGN_LEFT, npTextX(), c.y1 + npTextDy(), NP_RIGHT,
-             "Çalan yok");
+             rc::L("Çalan yok", "Nothing playing"));
     return;
   }
   du::image(layer, RECORD_IMAGES[npFrame()], NP_X, c.y1);
@@ -1104,7 +1105,7 @@ void drawLive(lv_event_t* e) {
   du::text(layer, f, C(homeOurs ? theme::C_TEXT2 : theme::team()), LV_TEXT_ALIGN_LEFT, x, y, c.x2, m.away.abbr);
   int32_t rx = c.x2 - S(8);
   if (m.phase == rc::MP_HALF) {
-    du::text(layer, f, C(theme::C_TEXT2), LV_TEXT_ALIGN_RIGHT, c.x1, y, rx, "İY");
+    du::text(layer, f, C(theme::C_TEXT2), LV_TEXT_ALIGN_RIGHT, c.x1, y, rx, rc::L("İY", "HT"));
     return;
   }
   du::text(layer, f, C(theme::C_TEXT), LV_TEXT_ALIGN_RIGHT, c.x1, y, rx, m.clock);

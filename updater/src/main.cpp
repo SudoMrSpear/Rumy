@@ -28,6 +28,9 @@ LgfxCyd s_lcd;
 SPIClass s_spi(VSPI);
 uint8_t s_buf[4096];
 int s_shown = -1;
+bool s_en = true;
+
+const char* tx(const char* tr, const char* en) { return s_en ? en : tr; }
 
 uint16_t rgb(uint8_t r, uint8_t g, uint8_t b) { return static_cast<uint16_t>(((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3)); }
 
@@ -127,7 +130,7 @@ bool verify(const rc::FwOffer& o) {
     if (b) mbedtls_sha256_update_ret(&body, s_buf, b);
     if (b < k) memcpy(tail + (done + b - (o.size - rc::FW_SHA_BYTES)), s_buf + b, k - b);
     done += static_cast<uint32_t>(k);
-    progress("Doğrulanıyor", done, o.size);
+    progress(tx("Doğrulanıyor", "Verifying"), done, o.size);
   }
   f.close();
   uint8_t sum[rc::FW_SHA_BYTES];
@@ -158,7 +161,7 @@ bool copy(const esp_partition_t* dst, const rc::FwOffer& o) {
       break;
     }
     done += static_cast<uint32_t>(n);
-    progress("Yazılıyor", done, o.size);
+    progress(tx("Yazılıyor", "Writing"), done, o.size);
   }
   f.close();
   if (esp_ota_end(h) != ESP_OK) ok = false;
@@ -172,7 +175,7 @@ void restartAfter(uint32_t ms) {
 
 void giveUp(const esp_partition_t* app, const char* why, bool appIntact) {
   bool back = appIntact && app && esp_ota_set_boot_partition(app) == ESP_OK;
-  frame("Güncelleme yapılamadı", C_RED, back ? "Eski yazılımla açılıyor" : "USB ile yükleyin");
+  frame(tx("Güncelleme yapılamadı", "Update failed"), C_RED, back ? tx("Eski yazılımla açılıyor", "Starting the old firmware") : tx("USB ile yükleyin", "Flash over USB"));
   line(154, why, C_TEXT);
   if (back) restartAfter(FAIL_MS);
   for (;;) vTaskDelay(pdMS_TO_TICKS(1000));
@@ -184,6 +187,7 @@ void setup() {
   Preferences prefs;
   prefs.begin("rumy", true);
   uint8_t flip = prefs.getUChar("flip", 0);
+  s_en = prefs.getUChar("dil", 1) == 1;
   prefs.end();
   s_lcd.init();
   s_lcd.setRotation(flip ? 3 : 1);
@@ -194,28 +198,28 @@ void setup() {
   s_lcd.setBrightness(160);
   s_lcd.loadFont(PORTAL_FONT_VLW);
   s_lcd.setTextDatum(lgfx::top_center);
-  frame("Rumy güncelleniyor", C_TEXT, "Kapatmayın");
+  frame(tx("Rumy güncelleniyor", "Updating Rumy"), C_TEXT, tx("Kapatmayın", "Don't power off"));
   const esp_partition_t* app = appPart();
-  if (!app) giveUp(app, "Ana bölüm bulunamadı", false);
+  if (!app) giveUp(app, tx("Ana bölüm bulunamadı", "App partition not found"), false);
   rc::FwOffer offer;
-  if (!mountSd()) giveUp(app, "SD kart okunamadı", true);
-  if (!readOffer(offer) || !SD.exists(rc::FW_FILE)) giveUp(app, "Güncelleme dosyası yok", true);
-  if (offer.size < rc::FW_HEAD_BYTES || offer.size > app->size) giveUp(app, "Dosya boyutu geçersiz", true);
+  if (!mountSd()) giveUp(app, tx("SD kart okunamadı", "Couldn't read SD card"), true);
+  if (!readOffer(offer) || !SD.exists(rc::FW_FILE)) giveUp(app, tx("Güncelleme dosyası yok", "No update file"), true);
+  if (offer.size < rc::FW_HEAD_BYTES || offer.size > app->size) giveUp(app, tx("Dosya boyutu geçersiz", "Invalid file size"), true);
   if (!verify(offer)) {
     SD.remove(rc::FW_FILE);
     SD.remove(rc::FW_SHA_FILE);
-    giveUp(app, "Dosya bozuk", true);
+    giveUp(app, tx("Dosya bozuk", "File is corrupted"), true);
   }
   for (int i = 0; i < COPY_TRIES; i++) {
     if (copy(app, offer)) {
       SD.remove(rc::FW_FILE);
       SD.remove(rc::FW_SHA_FILE);
-      frame("Güncelleme tamam", C_GREEN, "Rumy yeniden başlıyor");
-      progress("Kuruldu", 1, 1);
+      frame(tx("Güncelleme tamam", "Update complete"), C_GREEN, tx("Rumy yeniden başlıyor", "Rumy is restarting"));
+      progress(tx("Kuruldu", "Installed"), 1, 1);
       restartAfter(SHOW_MS);
     }
   }
-  giveUp(app, "Ana bölüme yazılamadı", false);
+  giveUp(app, tx("Ana bölüme yazılamadı", "Couldn't write the app partition"), false);
 }
 
 void loop() { vTaskDelay(pdMS_TO_TICKS(1000)); }

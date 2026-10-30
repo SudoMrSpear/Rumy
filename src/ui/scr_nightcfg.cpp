@@ -92,9 +92,9 @@ void deleted(lv_event_t* e) {
 lv_obj_t* create() {
   s_scr = rows::screen();
   lv_obj_add_event_cb(s_scr, deleted, LV_EVENT_DELETE, nullptr);
-  rows::header(s_scr, "Gece modu", false, back);
-  lv_obj_t* r = rows::row(s_scr, RS_MOON "  Ne zaman?", theme::S(82));
-  static const char* const kModes[3] = {"Kapalı", "Güneşe göre", "Saatlere göre"};
+  rows::header(s_scr, rc::L("Gece modu", "Night mode"), false, back);
+  lv_obj_t* r = rows::row(s_scr, rc::L(RS_MOON "  Ne zaman?", RS_MOON "  When?"), theme::S(82));
+  static const char* const kModes[3] = {rc::L("Kapalı", "Off"), rc::L("Güneşe göre", "By sun"), rc::L("Saatlere göre", "By hours")};
   for (int i = 0; i < 3; i++) {
     lv_obj_t* b = theme::makeButton(r, kModes[i], theme::fontS());
     const int32_t bw = (rows::W - theme::S(8) - theme::S(12) - 2 * theme::S(6)) / 3;
@@ -103,14 +103,14 @@ lv_obj_t* create() {
     lv_obj_add_event_cb(b, modeClick, LV_EVENT_CLICKED, reinterpret_cast<void*>(static_cast<intptr_t>(i)));
     s_modes[i] = b;
   }
-  r = rows::row(s_scr, RS_EYE "  Gece parlaklığı", theme::S(66));
+  r = rows::row(s_scr, rc::L(RS_EYE "  Gece parlaklığı", RS_EYE "  Night brightness"), theme::S(66));
   s_briVal = rows::value(r);
   s_bri = rows::slider(r, 1, 40, briEvent);
-  r = rows::row(s_scr, RS_CLOCK "  Başlangıç", rows::H);
+  r = rows::row(s_scr, rc::L(RS_CLOCK "  Başlangıç", RS_CLOCK "  Start"), rows::H);
   s_start = rows::stepper(r, startStep);
-  r = rows::row(s_scr, RS_CLOCK "  Bitiş", rows::H);
+  r = rows::row(s_scr, rc::L(RS_CLOCK "  Bitiş", RS_CLOCK "  End"), rows::H);
   s_end = rows::stepper(r, endStep);
-  lv_obj_t* hint = rows::section(s_scr, "Güneşe göre: gün batımından doğumuna kadar. Gece ekranı kısılır, Rumy uyur; dokununca 30 sn uyanır.");
+  lv_obj_t* hint = rows::section(s_scr, rc::L("Güneşe göre: gün batımından doğumuna kadar. Gece ekranı kısılır, Rumy uyur; dokununca 30 sn uyanır.", "By sun: from sunset to sunrise. At night the screen dims and Rumy sleeps; a tap wakes it for 30 s."));
   lv_label_set_long_mode(hint, LV_LABEL_LONG_MODE_WRAP);
   refresh();
   return s_scr;

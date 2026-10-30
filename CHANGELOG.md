@@ -3,6 +3,15 @@
 Sürüm numarası `platformio.ini` içindeki `[rumy] version` değeridir ve Rumy'nin Tanılama ekranında, `rapor`
 çıktısında ve uygulamanın Bakım bölümünde görünür.
 
+## Yayınlanmamış
+
+- **English / İngilizce:** cihaz arayüzü, telefon uygulaması, ilk kurulum portalı ve kablosuz güncelleyici artık İngilizce de çalışır. Yeni kurulumlarda varsayılan dil İngilizce; Ayarlar → Language / Dil ya da uygulamada Genel → Language / Dil ile Türkçeye geçilir (Rumy yeniden başlar). Ayar NVS'te `dil` anahtarında durur.
+- **Web kurulum:** <https://sudomrspear.github.io/Rumy/> adresinde Chrome/Edge'den tek tıkla kurulum (ESP Web Tools);
+  ILI9341 ve ST7789 seçilir. Her yeni sürümde `web_kurulum.yml` sürümün tam imajlarıyla sayfayı yeniden yayınlar.
+- **İngilizce belgeler:** `README.en.md` (tam çeviri), `Rumy_Project_Document.md`, `CHANGELOG.en.md`,
+  `THIRD_PARTY_NOTICES.en.md`, `docs/icon_ram.en.md`, `sd_card/README.txt`; `CONTRIBUTING.md`, `SECURITY.md` ve hata/öneri
+  şablonları iki dilli.
+
 ## 1.3.0 — kaynağı açık ilk sürüm
 
 - **Takım seçimi:** Süper Lig ve beş büyük ligden (Premier Lig, LaLiga, Serie A, Bundesliga, Ligue 1) istenen takım

@@ -12,6 +12,7 @@
 #include "src/core/lv_obj_private.h"
 #include "rumy/rumy.h"
 #include "theme.h"
+#include "text_tr.h"
 
 namespace goal_screen {
 
@@ -937,7 +938,7 @@ void splitName(const char* name, const char* team) {
     fitTo(theme::fontL(), sp + 1, s_last, sizeof(s_last));
   } else {
     s_first[0] = 0;
-    fitTo(theme::fontL(), name[0] ? name : (team[0] ? team : "Gol"), s_last, sizeof(s_last));
+    fitTo(theme::fontL(), name[0] ? name : (team[0] ? team : rc::L("Gol", "Goal")), s_last, sizeof(s_last));
   }
   size_t n = 0;
   if (sp && name[0]) {
@@ -967,13 +968,13 @@ void prepare(const rc::Match& m, const rc::MatchEvent& e) {
   s_photo = nullptr;
   s_photoData = nullptr;
   splitName(e.player, s_usHome ? m.home.name : m.away.name);
-  if (e.kind == rc::MK_OWN_GOAL) snprintf(s_detail, sizeof(s_detail), "%s · Kendi kalesine", e.minute);
-  else if (e.kind == rc::MK_PEN_GOAL) snprintf(s_detail, sizeof(s_detail), "%s · Penaltı", e.minute);
-  else snprintf(s_detail, sizeof(s_detail), "%s · Gol", e.minute);
+  if (e.kind == rc::MK_OWN_GOAL) snprintf(s_detail, sizeof(s_detail), rc::L("%s · Kendi kalesine", "%s · Own goal"), e.minute);
+  else if (e.kind == rc::MK_PEN_GOAL) snprintf(s_detail, sizeof(s_detail), rc::L("%s · Penaltı", "%s · Penalty"), e.minute);
+  else snprintf(s_detail, sizeof(s_detail), rc::L("%s · Gol", "%s · Goal"), e.minute);
   const char* fitted = nullptr;
   s_logo = match_ui::leagueLogo(m.league);
   char foot[72];
-  snprintf(foot, sizeof(foot), "%s · dokununca kapanır", rc::matchLeagueTr(m.league));
+  snprintf(foot, sizeof(foot), rc::L("%s · dokununca kapanır", "%s · tap to close"), rc::matchLeagueTr(m.league));
   int32_t room = SW - S(16) - (s_logo ? LEAGUE_PX + S(6) : 0);
   fitted = du::fit(theme::fontS(), foot, room, s_foot, sizeof(s_foot));
   if (fitted != s_foot) snprintf(s_foot, sizeof(s_foot), "%s", fitted);

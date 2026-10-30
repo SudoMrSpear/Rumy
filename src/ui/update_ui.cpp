@@ -7,6 +7,7 @@
 #include "media/fwupdate.h"
 #include "theme.h"
 #include "ui.h"
+#include "text_tr.h"
 
 namespace update_ui {
 
@@ -100,13 +101,13 @@ void eyes(uint32_t color, uint32_t glow) {
 }
 
 const char* reason(const char* why) {
-  if (!strcmp(why, "zaman asimi")) return "Bağlantı koptu";
-  if (!strcmp(why, "okuma")) return "Bağlantı okunamadı";
-  if (!strcmp(why, "sha")) return "Dosya bozuk geldi";
-  if (!strcmp(why, "imaj") || !strcmp(why, "imaj ozeti")) return "Geçersiz yazılım dosyası";
-  if (!strcmp(why, "guncelleyici imaji")) return "Yanlış dosya gönderildi";
-  if (!strncmp(why, "sd", 2)) return "SD karta yazılamadı";
-  if (!strcmp(why, "acilis bolumu")) return "Güncelleyici açılamadı";
+  if (!strcmp(why, "zaman asimi")) return rc::L("Bağlantı koptu", "Connection lost");
+  if (!strcmp(why, "okuma")) return rc::L("Bağlantı okunamadı", "Couldn't read the connection");
+  if (!strcmp(why, "sha")) return rc::L("Dosya bozuk geldi", "File arrived corrupted");
+  if (!strcmp(why, "imaj") || !strcmp(why, "imaj ozeti")) return rc::L("Geçersiz yazılım dosyası", "Invalid firmware file");
+  if (!strcmp(why, "guncelleyici imaji")) return rc::L("Yanlış dosya gönderildi", "Wrong file sent");
+  if (!strncmp(why, "sd", 2)) return rc::L("SD karta yazılamadı", "Couldn't write to SD card");
+  if (!strcmp(why, "acilis bolumu")) return rc::L("Güncelleyici açılamadı", "Couldn't start the updater");
   return why;
 }
 
@@ -125,7 +126,7 @@ void showProgress(const fwupdate::Progress& p) {
   mb(p.got, got, sizeof(got));
   mb(p.total, total, sizeof(total));
   char text[48];
-  snprintf(text, sizeof(text), "%%%d · %s / %s MB", pct, got, total);
+  snprintf(text, sizeof(text), rc::L("%%%d · %s / %s MB", "%d%% · %s / %s MB"), pct, got, total);
   lv_label_set_text(s_line, text);
 }
 
@@ -137,21 +138,21 @@ void show(const fwupdate::Progress& p) {
     lv_obj_remove_flag(s_bar, LV_OBJ_FLAG_HIDDEN);
     if (p.phase == fwupdate::FW_RX) {
       eyes(theme::C_EYE, C_GLOW);
-      lv_label_set_text(s_title, "Güncelleme alınıyor");
-      lv_label_set_text(s_note, "Kapatmayın · Rumy kendini yeniden başlatacak");
+      lv_label_set_text(s_title, rc::L("Güncelleme alınıyor", "Receiving update"));
+      lv_label_set_text(s_note, rc::L("Kapatmayın · Rumy kendini yeniden başlatacak", "Don't power off · Rumy will restart itself"));
     } else if (p.phase == fwupdate::FW_DONE) {
       eyes(theme::C_NEON_GREEN, 0x0B4A1F);
-      lv_label_set_text(s_title, "Güncelleme alındı");
+      lv_label_set_text(s_title, rc::L("Güncelleme alındı", "Update received"));
       lv_bar_set_value(s_bar, 100, LV_ANIM_OFF);
-      lv_label_set_text(s_line, "Yeniden başlıyor…");
-      lv_label_set_text(s_note, "Kapatmayın · yeni yazılım kuruluyor");
+      lv_label_set_text(s_line, rc::L("Yeniden başlıyor…", "Restarting…"));
+      lv_label_set_text(s_note, rc::L("Kapatmayın · yeni yazılım kuruluyor", "Don't power off · installing new firmware"));
     } else if (p.phase == fwupdate::FW_FAIL) {
       eyes(theme::C_NEON_RED, 0x4A0E0E);
       lv_obj_set_style_text_color(s_title, theme::col(theme::C_DANGER), 0);
-      lv_label_set_text(s_title, "Güncelleme alınamadı");
+      lv_label_set_text(s_title, rc::L("Güncelleme alınamadı", "Update failed"));
       lv_obj_add_flag(s_bar, LV_OBJ_FLAG_HIDDEN);
       lv_label_set_text(s_line, reason(p.why));
-      lv_label_set_text(s_note, "Eski yazılım çalışmaya devam ediyor");
+      lv_label_set_text(s_note, rc::L("Eski yazılım çalışmaya devam ediyor", "The old firmware keeps running"));
     }
   }
   if (p.phase == fwupdate::FW_RX) showProgress(p);

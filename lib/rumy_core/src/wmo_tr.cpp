@@ -1,38 +1,40 @@
 #include "wmo_tr.h"
 
+#include "text_tr.h"
+
 namespace rc {
 
 const char* wmoTextTr(uint8_t code) {
   switch (code) {
-    case 0: return "Açık";
-    case 1: return "Çoğunlukla açık";
-    case 2: return "Parçalı bulutlu";
-    case 3: return "Kapalı";
-    case 45: return "Sisli";
-    case 48: return "Kırağılı sis";
-    case 51: return "Hafif çisenti";
-    case 53: return "Çisenti";
-    case 55: return "Yoğun çisenti";
-    case 56: return "Hafif donan çisenti";
-    case 57: return "Donan çisenti";
-    case 61: return "Hafif yağmur";
-    case 63: return "Yağmurlu";
-    case 65: return "Şiddetli yağmur";
-    case 66: return "Hafif donan yağmur";
-    case 67: return "Donan yağmur";
-    case 71: return "Hafif kar";
-    case 73: return "Karlı";
-    case 75: return "Yoğun kar";
-    case 77: return "Kar taneleri";
-    case 80: return "Hafif sağanak";
-    case 81: return "Sağanak";
-    case 82: return "Şiddetli sağanak";
-    case 85: return "Hafif kar sağanağı";
-    case 86: return "Kar sağanağı";
-    case 95: return "Gök gürültülü fırtına";
-    case 96: return "Dolulu fırtına";
-    case 99: return "Şiddetli dolulu fırtına";
-    default: return "Bilinmiyor";
+    case 0: return L("Açık", "Clear");
+    case 1: return L("Çoğunlukla açık", "Mostly clear");
+    case 2: return L("Parçalı bulutlu", "Partly cloudy");
+    case 3: return L("Kapalı", "Overcast");
+    case 45: return L("Sisli", "Fog");
+    case 48: return L("Kırağılı sis", "Rime fog");
+    case 51: return L("Hafif çisenti", "Light drizzle");
+    case 53: return L("Çisenti", "Drizzle");
+    case 55: return L("Yoğun çisenti", "Heavy drizzle");
+    case 56: return L("Hafif donan çisenti", "Light freezing drizzle");
+    case 57: return L("Donan çisenti", "Freezing drizzle");
+    case 61: return L("Hafif yağmur", "Light rain");
+    case 63: return L("Yağmurlu", "Rain");
+    case 65: return L("Şiddetli yağmur", "Heavy rain");
+    case 66: return L("Hafif donan yağmur", "Light freezing rain");
+    case 67: return L("Donan yağmur", "Freezing rain");
+    case 71: return L("Hafif kar", "Light snow");
+    case 73: return L("Karlı", "Snow");
+    case 75: return L("Yoğun kar", "Heavy snow");
+    case 77: return L("Kar taneleri", "Snow grains");
+    case 80: return L("Hafif sağanak", "Light showers");
+    case 81: return L("Sağanak", "Showers");
+    case 82: return L("Şiddetli sağanak", "Heavy showers");
+    case 85: return L("Hafif kar sağanağı", "Light snow showers");
+    case 86: return L("Kar sağanağı", "Snow showers");
+    case 95: return L("Gök gürültülü fırtına", "Thunderstorm");
+    case 96: return L("Dolulu fırtına", "Thunderstorm, hail");
+    case 99: return L("Şiddetli dolulu fırtına", "Severe hailstorm");
+    default: return L("Bilinmiyor", "Unknown");
   }
 }
 

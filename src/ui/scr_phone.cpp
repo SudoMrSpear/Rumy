@@ -7,6 +7,7 @@
 #include "theme.h"
 #include "ui.h"
 #include "webui/webui.h"
+#include "text_tr.h"
 
 namespace scr_phone {
 
@@ -31,7 +32,7 @@ void back(lv_event_t* e) {
 void forget(lv_event_t* e) {
   (void)e;
   webui::forgetPhones();
-  ui::toast("Eşli telefonlar unutuldu");
+  ui::toast(rc::L("Eşli telefonlar unutuldu", "Paired phones forgotten"));
 }
 
 void step(lv_obj_t* parent, int32_t y, const char* num, const char* text) {
@@ -71,8 +72,8 @@ void refresh() {
   }
   uint8_t n = webui::phones();
   char buf[40];
-  if (n) snprintf(buf, sizeof(buf), RS_OK "  %u telefon eşli", static_cast<unsigned>(n));
-  else snprintf(buf, sizeof(buf), "Henüz eşli telefon yok");
+  if (n) snprintf(buf, sizeof(buf), rc::L(RS_OK "  %u telefon eşli", RS_OK "  %u phones paired"), static_cast<unsigned>(n));
+  else snprintf(buf, sizeof(buf), "%s", rc::L("Henüz eşli telefon yok", "No phones paired yet"));
   setText(s_count, buf);
   if (n) lv_obj_remove_flag(s_forget, LV_OBJ_FLAG_HIDDEN);
   else lv_obj_add_flag(s_forget, LV_OBJ_FLAG_HIDDEN);
@@ -98,7 +99,7 @@ lv_obj_t* create() {
   lv_obj_set_pos(bk, theme::S(6), theme::S(4));
   lv_obj_add_event_cb(bk, back, LV_EVENT_CLICKED, nullptr);
   lv_obj_t* title = theme::makeLabel(s_scr, theme::fontL(), theme::C_TEXT);
-  lv_label_set_text_static(title, "Telefon");
+  lv_label_set_text_static(title, rc::L("Telefon", "Phone"));
   lv_obj_set_pos(title, theme::S(60), theme::S(9));
 
   lv_obj_t* frame = theme::makeBox(s_scr);
@@ -113,9 +114,9 @@ lv_obj_t* create() {
   lv_qrcode_set_light_color(s_qr, lv_color_white());
   lv_obj_center(s_qr);
 
-  step(s_scr, theme::S(50), "1", "QR'ı iPhone kamerasıyla okut");
-  step(s_scr, theme::S(86), "2", "Paylaş, sonra Ana Ekrana Ekle");
-  step(s_scr, theme::S(122), "3", "Uygulamada bu kodu gir:");
+  step(s_scr, theme::S(50), "1", rc::L("QR'ı iPhone kamerasıyla okut", "Scan the QR with your iPhone camera"));
+  step(s_scr, theme::S(86), "2", rc::L("Paylaş, sonra Ana Ekrana Ekle", "Share, then Add to Home Screen"));
+  step(s_scr, theme::S(122), "3", rc::L("Uygulamada bu kodu gir:", "Enter this code in the app:"));
   s_code = theme::makeLabel(s_scr, theme::fontNum(), theme::C_EYE);
   lv_obj_set_pos(s_code, theme::S(162), theme::S(140));
 
@@ -126,7 +127,7 @@ lv_obj_t* create() {
 
   s_count = theme::makeLabel(s_scr, theme::fontS(), theme::C_TEXT);
   lv_obj_set_pos(s_count, theme::S(10), theme::S(212));
-  s_forget = theme::makeButton(s_scr, RS_TRASH "  Unut", theme::fontS());
+  s_forget = theme::makeButton(s_scr, rc::L(RS_TRASH "  Unut", RS_TRASH "  Forget"), theme::fontS());
   lv_obj_set_size(s_forget, theme::S(84), theme::S(32));
   lv_obj_set_pos(s_forget, theme::SW - theme::S(90), theme::S(202));
   lv_obj_set_style_text_color(s_forget, theme::col(theme::C_DANGER), 0);

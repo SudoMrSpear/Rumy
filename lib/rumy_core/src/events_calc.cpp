@@ -39,6 +39,25 @@ const FixedEvent kFixed[] = {
      "Ulu Önder Atatürk'ü saygı ve özlemle anıyoruz."},
 };
 
+struct FixedEn {
+  const char* name;
+  const char* greeting;
+};
+
+const FixedEn kFixedEn[] = {
+    {"New Year's Day", "Happy New Year!"},
+    {"National Sovereignty and Children's Day", "Happy National Sovereignty and Children's Day!"},
+    {"Labour and Solidarity Day", "Happy Labour Day!"},
+    {"Atatürk Commemoration, Youth and Sports Day", "Happy Youth and Sports Day!"},
+    {"Democracy and National Unity Day", "Remembering the martyrs of July 15."},
+    {"Victory Day", "Happy Victory Day!"},
+    {"Republic Day", "Happy Republic Day!"},
+    {"Atatürk Memorial Day", "Remembering Atatürk with respect and longing."},
+};
+
+const char* fixedName(const FixedEvent& f) { return langEn() ? kFixedEn[&f - kFixed].name : f.name; }
+const char* fixedGreeting(const FixedEvent& f) { return langEn() ? kFixedEn[&f - kFixed].greeting : f.greeting; }
+
 const char* const kRamazanName = "Ramazan Bayramı";
 const char* const kRamazanDative = "Ramazan Bayramı'na";
 const char* const kRamazanGreeting = "Ramazan Bayramınız mübarek olsun!";
@@ -86,7 +105,7 @@ int collectEvents(const Religious* rel, int relCount, const PersonalEvent* perso
       int32_t d = daysFromCivil(y, f.month, f.day);
       if (!inWindow(d, today, horizonDays)) continue;
       uint16_t ord = f.since ? static_cast<uint16_t>(y - f.since) : 0;
-      insertSorted(out, n, cap, makeOcc(y, f.month, f.day, f.kind, f.accessory, ord, f.name, f.dative));
+      insertSorted(out, n, cap, makeOcc(y, f.month, f.day, f.kind, f.accessory, ord, fixedName(f), L(f.dative, "")));
     }
     for (int i = 0; i < relCount; i++) {
       const Religious& r = rel[i];
@@ -94,12 +113,14 @@ int collectEvents(const Religious* rel, int relCount, const PersonalEvent* perso
       int32_t dr = daysFromCivil(y, r.ramazanMonth, r.ramazanDay);
       if (inWindow(dr, today, horizonDays)) {
         insertSorted(out, n, cap,
-                     makeOcc(y, r.ramazanMonth, r.ramazanDay, EV_RELIGIOUS, ACC_NONE, 0, kRamazanName, kRamazanDative));
+                     makeOcc(y, r.ramazanMonth, r.ramazanDay, EV_RELIGIOUS, ACC_NONE, 0, L(kRamazanName, "Eid al-Fitr"),
+                             L(kRamazanDative, "")));
       }
       int32_t dk = daysFromCivil(y, r.kurbanMonth, r.kurbanDay);
       if (inWindow(dk, today, horizonDays)) {
         insertSorted(out, n, cap,
-                     makeOcc(y, r.kurbanMonth, r.kurbanDay, EV_RELIGIOUS, ACC_NONE, 0, kKurbanName, kKurbanDative));
+                     makeOcc(y, r.kurbanMonth, r.kurbanDay, EV_RELIGIOUS, ACC_NONE, 0, L(kKurbanName, "Eid al-Adha"),
+                             L(kKurbanDative, "")));
       }
     }
     for (int i = 0; i < personalCount; i++) {
@@ -141,13 +162,13 @@ size_t eventCountdownText(const EventOcc& e, int32_t today, char* out, size_t ca
   int days = static_cast<int>(e.dayNum - today);
   int n;
   if (days == 0) {
-    n = snprintf(out, cap, "Bugün: %s", e.name);
+    n = snprintf(out, cap, rc::L("Bugün: %s", "Today: %s"), e.name);
   } else if (days == 1) {
-    n = snprintf(out, cap, "Yarın: %s", e.name);
+    n = snprintf(out, cap, rc::L("Yarın: %s", "Tomorrow: %s"), e.name);
   } else if (e.dative[0]) {
     n = snprintf(out, cap, "%s %d gün", e.dative, days);
   } else {
-    n = snprintf(out, cap, "%s · %d gün", e.name, days);
+    n = snprintf(out, cap, rc::L("%s · %d gün", "%s · %d days"), e.name, days);
   }
   if (n < 0) {
     if (cap) out[0] = 0;
@@ -159,16 +180,17 @@ size_t eventCountdownText(const EventOcc& e, int32_t today, char* out, size_t ca
 size_t eventGreeting(const EventOcc& e, char* out, size_t cap) {
   const char* fixed = nullptr;
   if (e.kind == EV_RELIGIOUS) {
-    fixed = strcmp(e.name, kRamazanName) == 0 ? kRamazanGreeting : kKurbanGreeting;
+    fixed = strcmp(e.name, L(kRamazanName, "Eid al-Fitr")) == 0 ? L(kRamazanGreeting, "Eid Mubarak!")
+                                                                 : L(kKurbanGreeting, "Eid Mubarak!");
   } else if (e.kind <= EV_LABOUR) {
     for (const FixedEvent& f : kFixed) {
-      if (f.month == e.month && f.day == e.day) fixed = f.greeting;
+      if (f.month == e.month && f.day == e.day) fixed = fixedGreeting(f);
     }
   }
   int n;
   if (fixed) n = snprintf(out, cap, "%s", fixed);
-  else if (e.kind == EV_BIRTHDAY) n = snprintf(out, cap, "Bugün %s!", e.name);
-  else n = snprintf(out, cap, "Bugün: %s", e.name);
+  else if (e.kind == EV_BIRTHDAY) n = snprintf(out, cap, rc::L("Bugün %s!", "Today is %s!"), e.name);
+  else n = snprintf(out, cap, rc::L("Bugün: %s", "Today: %s"), e.name);
   if (n < 0) {
     if (cap) out[0] = 0;
     return 0;
@@ -180,12 +202,12 @@ size_t eventSubtitle(const EventOcc& e, char* out, size_t cap) {
   const char* month = monthNameTr(e.month);
   int n;
   if (e.ordinal > 0 && e.kind == EV_BIRTHDAY) {
-    n = snprintf(out, cap, "%u %s · %u. yaş", static_cast<unsigned>(e.day), month, static_cast<unsigned>(e.ordinal));
+    n = snprintf(out, cap, rc::L("%u %s · %u. yaş", "%u %s · age %u"), static_cast<unsigned>(e.day), month, static_cast<unsigned>(e.ordinal));
   } else if (e.ordinal > 0 && e.kind == EV_COMMEMORATION) {
-    n = snprintf(out, cap, "%u %s · %u. yıl dönümü", static_cast<unsigned>(e.day), month,
+    n = snprintf(out, cap, rc::L("%u %s · %u. yıl dönümü", "%u %s · %u years"), static_cast<unsigned>(e.day), month,
                  static_cast<unsigned>(e.ordinal));
   } else if (e.ordinal > 0) {
-    n = snprintf(out, cap, "%u %s · %u. yıl", static_cast<unsigned>(e.day), month, static_cast<unsigned>(e.ordinal));
+    n = snprintf(out, cap, rc::L("%u %s · %u. yıl", "%u %s · year %u"), static_cast<unsigned>(e.day), month, static_cast<unsigned>(e.ordinal));
   } else {
     n = snprintf(out, cap, "%u %s", static_cast<unsigned>(e.day), month);
   }

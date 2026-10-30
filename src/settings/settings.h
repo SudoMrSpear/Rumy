@@ -39,6 +39,7 @@ struct Settings {
   uint8_t football;
   uint32_t teamC1;
   uint32_t teamC2;
+  uint8_t lang;
 };
 
 namespace settings {

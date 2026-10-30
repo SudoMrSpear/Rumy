@@ -25,6 +25,7 @@
 #include "slide.h"
 #include "theme.h"
 #include "timeutil.h"
+#include "text_tr.h"
 
 namespace ui {
 
@@ -454,7 +455,7 @@ bool roomFor(ScreenId id) {
   s_lowMemNoteMs = now | 1u;
   diag::note("ui", "bellek yetersiz: ekran %u acilmadi (bos %u, en buyuk %u, gerek %u)", static_cast<unsigned>(id),
              static_cast<unsigned>(m.free), static_cast<unsigned>(m.biggest), static_cast<unsigned>(need));
-  if (m.free >= cfg::LVGL_TOAST_NEED) toast("Bellek yetersiz, ekran açılamadı");
+  if (m.free >= cfg::LVGL_TOAST_NEED) toast(rc::L("Bellek yetersiz, ekran açılamadı", "Not enough memory to open the screen"));
   return false;
 }
 

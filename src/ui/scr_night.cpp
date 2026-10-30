@@ -46,17 +46,17 @@ void updatePrinter() {
   buf[0] = 0;
   uint32_t color = theme::C_TEXT3;
   if (p.connected && p.problem) {
-    if (rc::k2Runout(p.st)) snprintf(buf, sizeof(buf), "Yazıcı: filament bitti");
-    else snprintf(buf, sizeof(buf), "Yazıcı hatası · kod %ld", static_cast<long>(p.st.errCode));
+    if (rc::k2Runout(p.st)) snprintf(buf, sizeof(buf), "%s", rc::L("Yazıcı: filament bitti", "Printer: out of filament"));
+    else snprintf(buf, sizeof(buf), rc::L("Yazıcı hatası · kod %ld", "Printer error · code %ld"), static_cast<long>(p.st.errCode));
     color = theme::C_NEON_RED;
   } else if (p.connected && (p.phase == rc::K2_PRINTING || p.phase == rc::K2_PAUSED)) {
     if (p.phase == rc::K2_PRINTING && p.st.leftS && clk::synced()) {
       rc::LocalTime lt = rc::toLocal(clk::nowUtc() + p.st.leftS);
       char hm[8];
       rc::formatHm(hm, sizeof(hm), lt.hour, lt.minute);
-      snprintf(buf, sizeof(buf), "Baskı %%%u · bitiş %s", static_cast<unsigned>(p.st.progress), hm);
+      snprintf(buf, sizeof(buf), rc::L("Baskı %%%u · bitiş %s", "Print %u%% · done at %s"), static_cast<unsigned>(p.st.progress), hm);
     } else {
-      snprintf(buf, sizeof(buf), "Baskı %%%u · %s", static_cast<unsigned>(p.st.progress),
+      snprintf(buf, sizeof(buf), rc::L("Baskı %%%u · %s", "Print %u%% · %s"), static_cast<unsigned>(p.st.progress),
                rc::k2PhaseTr(static_cast<rc::K2Phase>(p.phase)));
     }
   }

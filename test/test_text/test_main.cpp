@@ -3,6 +3,7 @@
 
 #include "json_arena.h"
 #include "text_tr.h"
+#include "wind_tr.h"
 #include "wmo_tr.h"
 
 void setUp() {}
@@ -130,6 +131,34 @@ static void test_arena_behaviour() {
   TEST_ASSERT_TRUE(a.peak() > 0);
 }
 
+static void test_english() {
+  rc::setLang(rc::LANG_EN);
+  char buf[64];
+  rc::formatDateTr(buf, sizeof(buf), 5, 25, 9);
+  TEST_ASSERT_EQUAL_STRING("Friday, September 25", buf);
+  TEST_ASSERT_EQUAL_STRING("Sat", rc::dayShortTr(6));
+  TEST_ASSERT_EQUAL_STRING("Aug", rc::monthShortTr(8));
+  TEST_ASSERT_EQUAL_STRING("Good morning", rc::greetingTr(7));
+  TEST_ASSERT_EQUAL_STRING("Good night", rc::greetingTr(23));
+  rc::formatDecimalTr(buf, sizeof(buf), 217);
+  TEST_ASSERT_EQUAL_STRING("21.7", buf);
+  rc::rainSummaryTr(mk(0, 0, 40, 60), false, buf, sizeof(buf));
+  TEST_ASSERT_EQUAL_STRING("Rain starting in 30 min", buf);
+  rc::rainSummaryTr(mk(0, 0, 0, 0), false, buf, sizeof(buf));
+  TEST_ASSERT_EQUAL_STRING("No rain expected in the next hour", buf);
+  TEST_ASSERT_EQUAL_STRING("Very high", rc::uvLevelTr(85));
+  TEST_ASSERT_EQUAL_STRING("Good", rc::aqiLevelTr(10));
+  rc::agoTr(300, buf, sizeof(buf));
+  TEST_ASSERT_EQUAL_STRING("5 min ago", buf);
+  rc::durationTr(3900, buf, sizeof(buf));
+  TEST_ASSERT_EQUAL_STRING("1 h 5 min", buf);
+  TEST_ASSERT_EQUAL_STRING("Partly cloudy", rc::wmoTextTr(2));
+  TEST_ASSERT_EQUAL_STRING("Northeast", rc::windNameTr(45));
+  TEST_ASSERT_EQUAL_STRING("SW", rc::windAbbrTr(225));
+  rc::setLang(rc::LANG_TR);
+  TEST_ASSERT_EQUAL_STRING("Günaydın", rc::greetingTr(7));
+}
+
 int main() {
   UNITY_BEGIN();
   RUN_TEST(test_date_and_greeting);
@@ -139,5 +168,6 @@ int main() {
   RUN_TEST(test_ago_and_duration);
   RUN_TEST(test_wmo_mapping);
   RUN_TEST(test_arena_behaviour);
+  RUN_TEST(test_english);
   return UNITY_END();
 }

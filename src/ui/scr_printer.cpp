@@ -114,9 +114,9 @@ void drawCam(lv_event_t* e) {
   int32_t y = c.y1 + S(28);
   du::text(layer, fl, C(theme::C_TEXT3), LV_TEXT_ALIGN_CENTER, c.x1, y, c.x2, RS_CAMERA);
   bool link = media::state().link;
-  du::text(layer, fs, C(theme::C_TEXT2), LV_TEXT_ALIGN_CENTER, c.x1, y + S(38), c.x2, "Kamera");
+  du::text(layer, fs, C(theme::C_TEXT2), LV_TEXT_ALIGN_CENTER, c.x1, y + S(38), c.x2, rc::L("Kamera", "Camera"));
   du::text(layer, fs, C(theme::C_TEXT3), LV_TEXT_ALIGN_CENTER, c.x1, y + S(54), c.x2,
-           link ? "görüntü bekleniyor" : "bilgisayar köprüsü gerekli");
+           link ? rc::L("görüntü bekleniyor", "waiting for image") : rc::L("bilgisayar köprüsü gerekli", "computer bridge required"));
 }
 
 void drawBadge(lv_layer_t* layer, int32_t x, int32_t y, int32_t x2, rc::K2Phase ph) {
@@ -124,7 +124,7 @@ void drawBadge(lv_layer_t* layer, int32_t x, int32_t y, int32_t x2, rc::K2Phase 
   lv_color_t col = C(phaseColor(ph));
   char buf[48];
   if (problem()) {
-    snprintf(buf, sizeof(buf), RS_WARNING " %s", rc::k2Runout(P().st) ? "Filament bitti" : "Hata");
+    snprintf(buf, sizeof(buf), RS_WARNING " %s", rc::k2Runout(P().st) ? rc::L("Filament bitti", "Out of filament") : rc::L("Hata", "Error"));
     du::text(layer, fm, col, LV_TEXT_ALIGN_LEFT, x, y, x2, buf);
     return;
   }
@@ -140,16 +140,16 @@ void drawProblemBox(lv_layer_t* layer, int32_t x1, int32_t y1, int32_t x2, int32
   char a[48];
   char b[80];
   if (rc::k2Runout(p.st)) {
-    snprintf(a, sizeof(a), "Filament bitti,");
-    snprintf(b, sizeof(b), "baskı duraklatıldı");
+    snprintf(a, sizeof(a), "%s", rc::L("Filament bitti,", "Out of filament,"));
+    snprintf(b, sizeof(b), "%s", rc::L("baskı duraklatıldı", "print paused"));
   } else {
-    snprintf(a, sizeof(a), "Yazıcı hata bildirdi");
+    snprintf(a, sizeof(a), "%s", rc::L("Yazıcı hata bildirdi", "Printer reported an error"));
     if (p.st.errText[0]) {
-      snprintf(b, sizeof(b), "Kod %ld · %s", static_cast<long>(p.st.errCode), p.st.errText);
+      snprintf(b, sizeof(b), rc::L("Kod %ld · %s", "Code %ld · %s"), static_cast<long>(p.st.errCode), p.st.errText);
     } else if (p.st.errKey) {
-      snprintf(b, sizeof(b), "Kod %ld (%ld)", static_cast<long>(p.st.errCode), static_cast<long>(p.st.errKey));
+      snprintf(b, sizeof(b), rc::L("Kod %ld (%ld)", "Code %ld (%ld)"), static_cast<long>(p.st.errCode), static_cast<long>(p.st.errKey));
     } else {
-      snprintf(b, sizeof(b), "Kod %ld", static_cast<long>(p.st.errCode));
+      snprintf(b, sizeof(b), rc::L("Kod %ld", "Code %ld"), static_cast<long>(p.st.errCode));
     }
   }
   char fitted[80];
@@ -170,7 +170,7 @@ void drawInfo(lv_event_t* e) {
   int32_t w = c.x2 - c.x1;
   char buf[64];
   char out[64];
-  snprintf(buf, sizeof(buf), "%s · Creality K2", p.st.host[0] ? p.st.host : "Yazıcı");
+  snprintf(buf, sizeof(buf), "%s · Creality K2", p.st.host[0] ? p.st.host : rc::L("Yazıcı", "Printer"));
   fit(fs, buf, w, out, sizeof(out));
   du::text(layer, fs, C(theme::C_TEXT2), LV_TEXT_ALIGN_LEFT, x, c.y1, c.x2, out);
   rc::K2Phase ph = phase();
@@ -181,16 +181,16 @@ void drawInfo(lv_event_t* e) {
   if (ph == rc::K2_OFFLINE) {
     snprintf(buf, sizeof(buf), "%u.%u.%u.%u", static_cast<unsigned>(p.ip & 0xFF), static_cast<unsigned>((p.ip >> 8) & 0xFF),
              static_cast<unsigned>((p.ip >> 16) & 0xFF), static_cast<unsigned>((p.ip >> 24) & 0xFF));
-    du::text(layer, fm, C(theme::C_TEXT), LV_TEXT_ALIGN_LEFT, x, c.y1 + S(42), c.x2, "Ulaşılamıyor");
+    du::text(layer, fm, C(theme::C_TEXT), LV_TEXT_ALIGN_LEFT, x, c.y1 + S(42), c.x2, rc::L("Ulaşılamıyor", "Unreachable"));
     du::text(layer, fs, C(theme::C_TEXT2), LV_TEXT_ALIGN_LEFT, x, c.y1 + S(64), c.x2, buf);
-    du::text(layer, fs, C(theme::C_TEXT3), LV_TEXT_ALIGN_LEFT, x, c.y1 + S(82), c.x2, "Açık ve aynı ağda mı?");
+    du::text(layer, fs, C(theme::C_TEXT3), LV_TEXT_ALIGN_LEFT, x, c.y1 + S(82), c.x2, rc::L("Açık ve aynı ağda mı?", "Is it on and on the same network?"));
     return;
   }
   if (name[0] && hasJob(ph)) {
     fit(fm, name, w, out, sizeof(out));
     du::text(layer, fm, C(theme::C_WHITE), LV_TEXT_ALIGN_LEFT, x, c.y1 + S(42), c.x2, out);
     if (p.st.totalLayer) {
-      snprintf(buf, sizeof(buf), "%s%sKatman %u / %u", mat, mat[0] ? " · " : "", static_cast<unsigned>(p.st.layer),
+      snprintf(buf, sizeof(buf), rc::L("%s%sKatman %u / %u", "%s%sLayer %u / %u"), mat, mat[0] ? " · " : "", static_cast<unsigned>(p.st.layer),
                static_cast<unsigned>(p.st.totalLayer));
     } else {
       snprintf(buf, sizeof(buf), "%s", mat);
@@ -198,8 +198,8 @@ void drawInfo(lv_event_t* e) {
     fit(fs, buf, w, out, sizeof(out));
     du::text(layer, fs, C(theme::C_TEXT2), LV_TEXT_ALIGN_LEFT, x, c.y1 + S(64), c.x2, out);
   } else {
-    du::text(layer, fm, C(theme::C_TEXT), LV_TEXT_ALIGN_LEFT, x, c.y1 + S(42), c.x2, "Baskı yok");
-    du::text(layer, fs, C(theme::C_TEXT3), LV_TEXT_ALIGN_LEFT, x, c.y1 + S(64), c.x2, "Yazıcı hazır bekliyor");
+    du::text(layer, fm, C(theme::C_TEXT), LV_TEXT_ALIGN_LEFT, x, c.y1 + S(42), c.x2, rc::L("Baskı yok", "No print"));
+    du::text(layer, fs, C(theme::C_TEXT3), LV_TEXT_ALIGN_LEFT, x, c.y1 + S(64), c.x2, rc::L("Yazıcı hazır bekliyor", "Printer is ready"));
   }
   if (problem()) {
     drawProblemBox(layer, x - S(2), c.y1 + S(82), c.x2 - S(2), c.y2);
@@ -209,11 +209,11 @@ void drawInfo(lv_event_t* e) {
   char b[24];
   temp(a, sizeof(a), p.st.nozzle10, p.st.nozzleTarget10);
   du::text(layer, fm, C(theme::C_NEON_ORANGE), LV_TEXT_ALIGN_LEFT, x, c.y1 + S(84), x + S(14), RS_THERMO);
-  snprintf(buf, sizeof(buf), "Nozul %s", a);
+  snprintf(buf, sizeof(buf), rc::L("Nozul %s", "Nozzle %s"), a);
   du::text(layer, fs, C(theme::C_WHITE), LV_TEXT_ALIGN_LEFT, x + S(16), c.y1 + S(86), c.x2, buf);
   temp(a, sizeof(a), p.st.bed10, rc::K2_NO_TEMP);
   temp(b, sizeof(b), p.st.box10, rc::K2_NO_TEMP);
-  snprintf(buf, sizeof(buf), "Tabla %s · Kabin %s", a, b);
+  snprintf(buf, sizeof(buf), rc::L("Tabla %s · Kabin %s", "Bed %s · Chamber %s"), a, b);
   fit(fs, buf, w - S(16), out, sizeof(out));
   du::text(layer, fs, C(theme::C_TEXT2), LV_TEXT_ALIGN_LEFT, x + S(16), c.y1 + S(102), c.x2, out);
 }
@@ -237,25 +237,25 @@ void drawBottom(lv_event_t* e) {
   int32_t barY = c.y1 + S(38);
   if (!job) {
     du::box(layer, x1, barY, x2, barY + S(11), C(theme::C_BAR_BG), LV_OPA_COVER, S(6));
-    const char* hint = p.configured ? (ph == rc::K2_OFFLINE ? "Bağlantı yeniden deneniyor" : "Şu an yazdırılan bir şey yok")
-                                    : "Yazıcı ayarlanmadı";
+    const char* hint = p.configured ? (ph == rc::K2_OFFLINE ? rc::L("Bağlantı yeniden deneniyor", "Retrying connection") : rc::L("Şu an yazdırılan bir şey yok", "Nothing printing right now"))
+                                    : rc::L("Yazıcı ayarlanmadı", "Printer not set up");
     du::text(layer, fm, C(theme::C_TEXT2), LV_TEXT_ALIGN_LEFT, x1, c.y1 + S(6), x2, hint);
   } else {
     uint32_t pctColor = bad ? theme::C_NEON_RED : (ph == rc::K2_DONE ? theme::C_NEON_GREEN : theme::C_NEON_CYAN);
     snprintf(buf, sizeof(buf), "%%%u", static_cast<unsigned>(p.st.progress));
     du::text(layer, fl, C(pctColor), LV_TEXT_ALIGN_LEFT, x1, c.y1 + S(2), x2, buf);
-    du::text(layer, fs, C(theme::C_TEXT2), LV_TEXT_ALIGN_LEFT, x1 + textW(fl, buf) + S(8), c.y1 + S(12), x2, "tamamlandı");
+    du::text(layer, fs, C(theme::C_TEXT2), LV_TEXT_ALIGN_LEFT, x1 + textW(fl, buf) + S(8), c.y1 + S(12), x2, rc::L("tamamlandı", "complete"));
     const char* right = nullptr;
     uint32_t rightColor = theme::C_NEON_YELLOW;
     char when[24];
     if (bad || ph == rc::K2_PAUSED) {
-      right = "Bekliyor";
+      right = rc::L("Bekliyor", "Waiting");
       rightColor = bad ? theme::C_NEON_RED : theme::C_NEON_YELLOW;
     } else if (ph == rc::K2_DONE) {
-      right = "Bitti";
+      right = rc::L("Bitti", "Done");
       rightColor = theme::C_NEON_GREEN;
     } else if (ph == rc::K2_STOPPED) {
-      right = "Durduruldu";
+      right = rc::L("Durduruldu", "Stopped");
       rightColor = theme::C_NEON_ORANGE;
     } else if (ph == rc::K2_PRINTING && clk::synced() && p.st.leftS) {
       uint32_t end = clk::nowUtc() + p.st.leftS;
@@ -263,9 +263,9 @@ void drawBottom(lv_event_t* e) {
       char hm[8];
       rc::formatHm(hm, sizeof(hm), lt.hour, lt.minute);
       int32_t days = rc::localDayNum(end) - clk::todayDayNum();
-      if (days == 0) snprintf(when, sizeof(when), "Bitiş %s", hm);
-      else if (days == 1) snprintf(when, sizeof(when), "Bitiş yarın %s", hm);
-      else snprintf(when, sizeof(when), "Bitiş %s %s", rc::dayShortTr(lt.wday), hm);
+      if (days == 0) snprintf(when, sizeof(when), rc::L("Bitiş %s", "Done at %s"), hm);
+      else if (days == 1) snprintf(when, sizeof(when), rc::L("Bitiş yarın %s", "Done tomorrow %s"), hm);
+      else snprintf(when, sizeof(when), rc::L("Bitiş %s %s", "Done %s %s"), rc::dayShortTr(lt.wday), hm);
       right = when;
     }
     if (right) du::text(layer, fm, C(rightColor), LV_TEXT_ALIGN_RIGHT, x1, c.y1 + S(6), x2, right);
@@ -280,23 +280,23 @@ void drawBottom(lv_event_t* e) {
     int32_t ty = barY + S(20);
     if (ph == rc::K2_DONE) {
       rc::durationTr(p.st.jobS, dur, sizeof(dur));
-      snprintf(buf, sizeof(buf), "Süre %s", dur);
+      snprintf(buf, sizeof(buf), rc::L("Süre %s", "Time %s"), dur);
       du::text(layer, fm, C(theme::C_WHITE), LV_TEXT_ALIGN_LEFT, x1, ty, x2, buf);
     } else {
       du::text(layer, fm, C(theme::C_TEXT2), LV_TEXT_ALIGN_LEFT, x1, ty, x1 + S(18), RS_CLOCK);
       if (p.st.leftS) {
         rc::durationTr(p.st.leftS, dur, sizeof(dur));
-        snprintf(buf, sizeof(buf), "Kalan %s", dur);
+        snprintf(buf, sizeof(buf), rc::L("Kalan %s", "Left %s"), dur);
       } else {
-        snprintf(buf, sizeof(buf), "Kalan süre hesaplanıyor");
+        snprintf(buf, sizeof(buf), "%s", rc::L("Kalan süre hesaplanıyor", "Estimating time left"));
       }
       du::text(layer, fm, C(theme::C_WHITE), LV_TEXT_ALIGN_LEFT, x1 + S(20), ty, x2, buf);
       rc::durationTr(p.st.jobS, dur, sizeof(dur));
-      snprintf(buf, sizeof(buf), "Geçen %s", dur);
+      snprintf(buf, sizeof(buf), rc::L("Geçen %s", "Elapsed %s"), dur);
       du::text(layer, fs, C(theme::C_TEXT2), LV_TEXT_ALIGN_RIGHT, x1, ty + S(4), x2, buf);
     }
   }
-  const char* back = media::state().link ? "Sola kaydır: Spotify" : "Sola kaydır: ana ekran";
+  const char* back = media::state().link ? rc::L("Sola kaydır: Spotify", "Swipe left: Spotify") : rc::L("Sola kaydır: ana ekran", "Swipe left: home");
   du::text(layer, fs, C(theme::C_TEXT3), LV_TEXT_ALIGN_LEFT, x1, c.y2 - lv_font_get_line_height(fs) + 1, x2, back);
 }
 
@@ -310,10 +310,10 @@ void drawSetup(lv_event_t* e) {
   const lv_font_t* fs = theme::fontS();
   int32_t y = c.y1 + S(40);
   du::text(layer, fl, C(theme::C_NEON_CYAN), LV_TEXT_ALIGN_CENTER, c.x1, y, c.x2, RS_CUBE);
-  du::text(layer, fm, C(theme::C_TEXT), LV_TEXT_ALIGN_CENTER, c.x1, y + S(40), c.x2, "Yazıcı ayarlanmadı");
+  du::text(layer, fm, C(theme::C_TEXT), LV_TEXT_ALIGN_CENTER, c.x1, y + S(40), c.x2, rc::L("Yazıcı ayarlanmadı", "Printer not set up"));
   du::text(layer, fs, C(theme::C_TEXT2), LV_TEXT_ALIGN_CENTER, c.x1, y + S(66), c.x2,
-           "Web arayüzünde \"3D yazıcı\" bölümüne");
-  du::text(layer, fs, C(theme::C_TEXT2), LV_TEXT_ALIGN_CENTER, c.x1, y + S(82), c.x2, "Creality K2'nin IP adresini yaz.");
+           rc::L("Web arayüzünde \"3D yazıcı\" bölümüne", "In the web app's \"3D printer\" section,"));
+  du::text(layer, fs, C(theme::C_TEXT2), LV_TEXT_ALIGN_CENTER, c.x1, y + S(82), c.x2, rc::L("Creality K2'nin IP adresini yaz.", "enter the Creality K2's IP address."));
 }
 
 void refresh() {

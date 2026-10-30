@@ -23,20 +23,21 @@
 #include "quake/quake.h"
 #include "weather/weather.h"
 #include "webui/webui.h"
+#include "text_tr.h"
 
 namespace http {
 
 const char* errText(int code) {
   switch (code) {
-    case E_CONNECT: return "bağlanamadı";
-    case E_TIMEOUT: return "zaman aşımı";
+    case E_CONNECT: return rc::L("bağlanamadı", "connect failed");
+    case E_TIMEOUT: return rc::L("zaman aşımı", "timeout");
     case E_PROTO: return "protokol";
-    case E_WRITE: return "gönderilemedi";
-    case E_TLS_MEM: return "TLS için bellek yok";
+    case E_WRITE: return rc::L("gönderilemedi", "send failed");
+    case E_TLS_MEM: return rc::L("TLS için bellek yok", "no memory for TLS");
     case E_PARSE: return "JSON";
-    case E_NO_WIFI: return "WiFi yok";
+    case E_NO_WIFI: return rc::L("WiFi yok", "no WiFi");
     case E_BUILD: return "istek";
-    case E_ENCODING: return "sıkıştırma";
+    case E_ENCODING: return rc::L("sıkıştırma", "compression");
     default: return code >= 200 ? "HTTP" : "?";
   }
 }

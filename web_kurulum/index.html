@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#000000">
+<meta name="description" content="Rumy: ESP32 Cheap Yellow Display masaüstü arkadaşı. Tarayıcıdan tek tıkla kurulum.">
+<meta property="og:title" content="Rumy web kurulum">
+<meta property="og:description" content="ESP32-2432S028R (CYD) için masaüstü arkadaşı: saat, hava, deprem, maç, Spotify, WiZ. Tarayıcıdan kur.">
+<meta property="og:image" content="tanitim.png">
+<link rel="icon" href="icon.png">
+<title>Rumy web kurulum</title>
+<script type="module" src="https://unpkg.com/esp-web-tools@10.2.1/dist/web/install-button.js?module"></script>
+<style>
+:root{--bg:#000;--cell:#101317;--sep:#262b33;--text:#f2f5f9;--muted:#8d97a5;--eye:#19d3f0;--warn:#ffcc00;--bad:#ff5a5f;--ok:#34c759}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 -apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
+html[lang=tr] [data-l=en],html[lang=en] [data-l=tr]{display:none}
+main{max-width:760px;margin:0 auto;padding:0 16px 56px}
+header{display:flex;align-items:center;justify-content:space-between;height:64px}
+header .logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:20px}
+header .logo img{width:32px;height:32px;border-radius:8px}
+.lang{display:flex;border:1px solid var(--sep);border-radius:999px;overflow:hidden}
+.lang button{background:none;border:0;color:var(--muted);font:inherit;font-size:14px;padding:6px 12px;cursor:pointer}
+html[lang=tr] .lang [data-set=tr],html[lang=en] .lang [data-set=en]{background:var(--eye);color:#000}
+.hero{width:100%;height:auto;border-radius:14px;border:1px solid var(--sep);display:block}
+h1{font-size:28px;line-height:1.2;margin:28px 0 8px}
+h2{font-size:18px;margin:32px 0 12px}
+p{margin:0 0 12px;color:var(--muted)}
+p b,li b{color:var(--text)}
+.card{background:var(--cell);border:1px solid var(--sep);border-radius:14px;padding:20px}
+.panels{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}
+.panels label{display:block;border:1px solid var(--sep);border-radius:10px;padding:12px;cursor:pointer}
+.panels input{accent-color:var(--eye);margin:0 8px 0 0}
+.panels label:has(input:checked){border-color:var(--eye)}
+.panels small{display:block;color:var(--muted);margin-top:4px;font-size:13px}
+.install{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.btn{background:var(--eye);color:#000;border:0;border-radius:10px;font:inherit;font-weight:700;padding:12px 22px;cursor:pointer}
+.ver{color:var(--muted);font-size:14px}
+.note{border-left:3px solid var(--warn);padding:2px 0 2px 12px;margin:16px 0 0;color:var(--muted)}
+.note.bad{border-color:var(--bad)}
+ol,ul{padding-left:22px;margin:0;color:var(--muted)}
+li{margin:6px 0}
+code{background:#1b1f25;border-radius:5px;padding:1px 6px;font-size:14px;color:var(--text)}
+a{color:var(--eye)}
+footer{margin-top:40px;font-size:13px;color:var(--muted)}
+@media (max-width:520px){.panels{grid-template-columns:1fr}h1{font-size:24px}}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <div class="logo"><img src="icon.png" alt="">Rumy</div>
+  <div class="lang"><button data-set="tr">TR</button><button data-set="en">EN</button></div>
+</header>
+
+<img class="hero" src="tanitim.png" alt="Rumy">
+
+<h1>
+  <span data-l="tr">Rumy'yi tarayıcıdan kur</span>
+  <span data-l="en">Install Rumy from your browser</span>
+</h1>
+<p data-l="tr">ESP32-2432S028R ("Cheap Yellow Display") için masaüstü arkadaşı: saat, hava durumu, deprem, maç takibi,
+Spotify, WiZ ampul ve Claude Code / Codex ışığı. Python ya da esptool gerekmez; kartı USB'den bağla ve kur.</p>
+<p data-l="en">A desk companion for the ESP32-2432S028R "Cheap Yellow Display": clock, weather, earthquakes, live
+football, Spotify, WiZ bulb control and a Claude Code / Codex agent light. No Python or esptool needed: plug the board
+in over USB and install. The device's interface is in Turkish.</p>
+
+<div class="card">
+  <div class="panels">
+    <label><input type="radio" name="panel" value="ili9341" checked>ILI9341
+      <small data-l="tr">Çoğu CYD bu paneli kullanır. Emin değilsen bunu seç.</small>
+      <small data-l="en">Most CYD boards. Pick this if unsure.</small>
+    </label>
+    <label><input type="radio" name="panel" value="st7789">ST7789
+      <small data-l="tr">ILI9341 ile renkler ters ya da görüntü bozuksa.</small>
+      <small data-l="en">If colours are inverted or the image is garbled with ILI9341.</small>
+    </label>
+  </div>
+  <div class="install">
+    <esp-web-install-button id="kur" manifest="manifest-ili9341.json">
+      <button class="btn" slot="activate"><span data-l="tr">Kur</span><span data-l="en">Install</span></button>
+      <span slot="unsupported" class="note bad">
+        <span data-l="tr">Bu tarayıcı USB seri bağlantıyı desteklemiyor. Bilgisayarda Chrome ya da Edge kullan.</span>
+        <span data-l="en">This browser has no Web Serial support. Use desktop Chrome or Edge.</span>
+      </span>
+      <span slot="not-allowed" class="note bad">
+        <span data-l="tr">Kurulum yalnızca HTTPS üzerinden çalışır.</span>
+        <span data-l="en">Installing only works over HTTPS.</span>
+      </span>
+    </esp-web-install-button>
+    <span class="ver" id="ver"></span>
+  </div>
+  <p class="note" data-l="tr"><b>Karttaki her şey silinir</b> (Bruce, Launcher, eski Rumy ayarları). Kurulum
+  penceresinde <b>"Erase device"</b> seçeneğini işaretle. Ayarlarını koruyarak güncellemek için
+  <a href="https://github.com/SudoMrSpear/Rumy#4-usb-ile-kurulum">README'deki güncelleme adımlarını</a> kullan.</p>
+  <p class="note" data-l="en"><b>Everything on the board is erased</b> (Bruce, Launcher, previous Rumy settings).
+  Tick <b>"Erase device"</b> in the install dialog. To update while keeping your settings, follow the
+  <a href="https://github.com/SudoMrSpear/Rumy/blob/main/README.en.md#updating">update steps in the README</a>.</p>
+</div>
+
+<h2><span data-l="tr">Kurulumdan sonra</span><span data-l="en">After installing</span></h2>
+<ol data-l="tr">
+  <li>Telefonla <b>Rumy-Kurulum</b> ağına bağlan (ekrandaki QR kodu okutabilirsin).</li>
+  <li><b>Configure WiFi</b>'ye bas, ev ağını (2,4 GHz) seç ve şifreni yaz.</li>
+  <li><b>Adın</b> ve <b>Şehir (il)</b> alanlarını doldurup <b>Save</b>'e bas. Rumy bağlanıp yeniden başlar.</li>
+  <li>Sayfa kendiliğinden açılmazsa tarayıcıda <code>http://192.168.4.1</code> adresine git.</li>
+</ol>
+<ol data-l="en">
+  <li>Join the <b>Rumy-Kurulum</b> WiFi network with your phone (or scan the QR code on screen).</li>
+  <li>Tap <b>Configure WiFi</b>, pick your home network (2.4 GHz only) and enter its password.</li>
+  <li>Fill in your <b>name</b> and <b>city</b> (a Turkish province; a custom location can be set later), then
+  <b>Save</b>. Rumy connects and restarts.</li>
+  <li>If the page does not open by itself, browse to <code>http://192.168.4.1</code>.</li>
+</ol>
+
+<h2><span data-l="tr">Bağlanamıyorsa</span><span data-l="en">If it will not connect</span></h2>
+<ul data-l="tr">
+  <li>Kablonun veri taşıdığından emin ol; yalnızca şarj eden kablolar kartı göstermez.</li>
+  <li>Windows'ta CH340 sürücüsü gerekebilir.</li>
+  <li>Kart yükleme moduna girmezse: BOOT'a basılı tut, RST'ye bas-bırak, BOOT'u bırak, sonra tekrar dene.</li>
+</ul>
+<ul data-l="en">
+  <li>Make sure the cable carries data; charge-only cables never show the board.</li>
+  <li>Windows may need the CH340 USB driver.</li>
+  <li>If the board will not enter download mode: hold BOOT, press and release RST, release BOOT, then retry.</li>
+</ul>
+
+<footer>
+  <p data-l="tr"><a href="https://github.com/SudoMrSpear/Rumy">Kaynak kod</a> ·
+  PolyForm Noncommercial 1.0.0 lisanslı, kaynağı açık bir hobi projesidir; ticari kullanım ayrıca izin gerektirir.
+  Kurulum düğmesi <a href="https://esphome.github.io/esp-web-tools/">ESP Web Tools</a> ile çalışır.</p>
+  <p data-l="en"><a href="https://github.com/SudoMrSpear/Rumy">Source code</a> ·
+  A source-available hobby project under PolyForm Noncommercial 1.0.0; commercial use needs separate permission.
+  The install button is powered by <a href="https://esphome.github.io/esp-web-tools/">ESP Web Tools</a>.</p>
+</footer>
+</main>
+<script>
+(function () {
+  var root = document.documentElement;
+  var saved = null;
+  try { saved = localStorage.getItem("rumy-dil"); } catch (e) {}
+  var lang = saved || ((navigator.language || "").toLowerCase().indexOf("tr") === 0 ? "tr" : "en");
+  function setLang(l) {
+    root.lang = l;
+    try { localStorage.setItem("rumy-dil", l); } catch (e) {}
+  }
+  setLang(lang);
+  document.querySelectorAll(".lang button").forEach(function (b) {
+    b.addEventListener("click", function () { setLang(b.dataset.set); });
+  });
+
+  var kur = document.getElementById("kur");
+  document.querySelectorAll("input[name=panel]").forEach(function (r) {
+    r.addEventListener("change", function () { kur.setAttribute("manifest", "manifest-" + r.value + ".json"); });
+  });
+
+  fetch("manifest-ili9341.json").then(function (r) { return r.json(); }).then(function (m) {
+    document.getElementById("ver").textContent = "v" + m.version;
+  }).catch(function () {});
+})();
+</script>
+</body>
+</html>

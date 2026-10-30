@@ -8,6 +8,7 @@
 #include "screens.h"
 #include "theme.h"
 #include "ui.h"
+#include "text_tr.h"
 
 namespace scr_agents {
 
@@ -40,7 +41,7 @@ void drawTitle(lv_event_t* e) {
   uint8_t top = rc::agentsTop(a);
   agents_ui::drawBeacon(layer, c.x1 + BEACON_X, c.y1 + TITLE_H / 2, BEACON_R, top, lv_tick_get());
   du::text(layer, fm, C(theme::C_TEXT), LV_TEXT_ALIGN_LEFT, c.x1 + S(38), c.y1 + (TITLE_H - lv_font_get_line_height(fm)) / 2,
-           c.x2, "Kod ajanları");
+           c.x2, rc::L("Kod ajanları", "Coding agents"));
   char sum[64];
   agents_ui::summary(a, sum, sizeof(sum));
   du::text(layer, fs, C(agents_ui::color(top)), LV_TEXT_ALIGN_RIGHT, c.x1 + S(150),
@@ -62,11 +63,11 @@ void drawList(lv_event_t* e) {
   coords(e, c);
   const rc::Agents& a = agents::state();
   if (!a.valid) {
-    drawEmpty(layer, c, "Köprü bağlı değil", "Bilgisayarda köprü çalışınca görünür");
+    drawEmpty(layer, c, rc::L("Köprü bağlı değil", "Bridge not connected"), rc::L("Bilgisayarda köprü çalışınca görünür", "Appears when the bridge runs on your computer"));
     return;
   }
   if (!a.n) {
-    drawEmpty(layer, c, "Açık ajan oturumu yok", "Claude ya da Codex'te bir iş başlatınca görünür");
+    drawEmpty(layer, c, rc::L("Açık ajan oturumu yok", "No open agent sessions"), rc::L("Claude ya da Codex'te bir iş başlatınca görünür", "Appears when you start a task in Claude or Codex"));
     return;
   }
   const lv_font_t* fm = theme::fontM();
@@ -91,7 +92,7 @@ void drawList(lv_event_t* e) {
   }
   int more = a.work + a.wait + a.idle - a.n;
   if (more > 0) {
-    snprintf(text, sizeof(text), "+%d oturum daha", more);
+    snprintf(text, sizeof(text), rc::L("+%d oturum daha", "+%d more sessions"), more);
     du::text(layer, fs, C(theme::C_TEXT3), LV_TEXT_ALIGN_RIGHT, c.x1, c.y1 + a.n * ROW_H + S(4), c.x2 - S(12), text);
   }
 }

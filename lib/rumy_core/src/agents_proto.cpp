@@ -1,4 +1,5 @@
 #include "agents_proto.h"
+#include "text_tr.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -145,18 +146,18 @@ const char* agentName(uint8_t agent) { return agent == AK_CODEX ? "Codex" : "Cla
 
 void agentSpanTr(uint32_t s, char* out, size_t cap) {
   if (s < 60) {
-    snprintf(out, cap, "%lu sn", static_cast<unsigned long>(s));
+    snprintf(out, cap, rc::L("%lu sn", "%lu s"), static_cast<unsigned long>(s));
     return;
   }
   uint32_t m = s / 60;
   if (m < 60) {
-    snprintf(out, cap, "%lu dk", static_cast<unsigned long>(m));
+    snprintf(out, cap, rc::L("%lu dk", "%lu min"), static_cast<unsigned long>(m));
     return;
   }
   uint32_t h = m / 60;
   m %= 60;
-  if (h >= 24 || !m) snprintf(out, cap, "%lu sa", static_cast<unsigned long>(h));
-  else snprintf(out, cap, "%lu sa %lu dk", static_cast<unsigned long>(h), static_cast<unsigned long>(m));
+  if (h >= 24 || !m) snprintf(out, cap, rc::L("%lu sa", "%lu h"), static_cast<unsigned long>(h));
+  else snprintf(out, cap, rc::L("%lu sa %lu dk", "%lu h %lu min"), static_cast<unsigned long>(h), static_cast<unsigned long>(m));
 }
 
 }

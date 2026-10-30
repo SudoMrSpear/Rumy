@@ -65,7 +65,7 @@ void drawTitle(lv_event_t* e) {
   const lv_font_t* fm = theme::fontM();
   int32_t y = c.y1 + (TITLE_H - lv_font_get_line_height(fm)) / 2;
   du::text(layer, fm, C(theme::team()), LV_TEXT_ALIGN_LEFT, c.x1 + S(12), y, c.x1 + S(36), RS_FUTBOL);
-  du::text(layer, fm, C(theme::C_TEXT), LV_TEXT_ALIGN_LEFT, c.x1 + S(38), y, c.x2, "Futbol");
+  du::text(layer, fm, C(theme::C_TEXT), LV_TEXT_ALIGN_LEFT, c.x1 + S(38), y, c.x2, rc::L("Futbol", "Football"));
 }
 
 void status(uint8_t league, char* out, size_t cap, uint32_t& color) {
@@ -81,10 +81,10 @@ void status(uint8_t league, char* out, size_t cap, uint32_t& color) {
     live += b.games[i].phase == rc::MP_LIVE || b.games[i].phase == rc::MP_HALF;
   }
   if (live) {
-    snprintf(out, cap, "%d canlı", live);
+    snprintf(out, cap, rc::L("%d canlı", "%d live"), live);
     color = theme::C_NEON_RED;
   } else if (all) {
-    snprintf(out, cap, "Bugün %d maç", all);
+    snprintf(out, cap, rc::L("Bugün %d maç", "%d matches today"), all);
     color = theme::C_TEXT2;
   }
 }
@@ -212,7 +212,7 @@ void drawButton(lv_event_t* e) {
   const lv_font_t* fs = theme::fontS();
   int32_t y = c.y1 + (BTN_H - lv_font_get_line_height(fs)) / 2;
   const char* icon = table() ? RS_FUTBOL : RS_LIST;
-  const char* text = table() ? "Maçlar" : "Puan durumu";
+  const char* text = table() ? rc::L("Maçlar", "Matches") : rc::L("Puan durumu", "Standings");
   int32_t w = du::width(fs, icon) + S(5) + du::width(fs, text);
   int32_t x = c.x1 + (BTN_W - w) / 2;
   du::text(layer, fs, C(theme::team()), LV_TEXT_ALIGN_LEFT, x, y, c.x2, icon);
@@ -231,9 +231,9 @@ void dayLabel(uint32_t ymd, char* out, size_t cap) {
   int32_t diff = days - clk::todayDayNum();
   char date[32];
   snprintf(date, sizeof(date), "%d %s", d, rc::monthNameTr(static_cast<uint8_t>(m)));
-  if (diff == 0) snprintf(out, cap, "Bugün · %s", date);
-  else if (diff == -1) snprintf(out, cap, "Dün · %s", date);
-  else if (diff == 1) snprintf(out, cap, "Yarın · %s", date);
+  if (diff == 0) snprintf(out, cap, rc::L("Bugün · %s", "Today · %s"), date);
+  else if (diff == -1) snprintf(out, cap, rc::L("Dün · %s", "Yesterday · %s"), date);
+  else if (diff == 1) snprintf(out, cap, rc::L("Yarın · %s", "Tomorrow · %s"), date);
   else snprintf(out, cap, "%s %s", rc::dayShortTr(rc::weekdayFromDays(days)), date);
 }
 
@@ -248,13 +248,13 @@ void drawBar(lv_event_t* e) {
     lv_color_t dim = C(theme::C_TEXT3);
     int32_t y = c.y1 + (BAR_H - lv_font_get_line_height(fs)) / 2;
     du::text(layer, fs, dim, LV_TEXT_ALIGN_RIGHT, c.x1, y, c.x1 + X_RANK, "#");
-    du::text(layer, fs, dim, LV_TEXT_ALIGN_LEFT, c.x1 + X_NAME, y, c.x1 + X_O - S(24), "Takım");
-    du::text(layer, fs, dim, LV_TEXT_ALIGN_RIGHT, c.x1, y, c.x1 + X_O, "O");
-    du::text(layer, fs, dim, LV_TEXT_ALIGN_RIGHT, c.x1, y, c.x1 + X_G, "G");
-    du::text(layer, fs, dim, LV_TEXT_ALIGN_RIGHT, c.x1, y, c.x1 + X_B, "B");
-    du::text(layer, fs, dim, LV_TEXT_ALIGN_RIGHT, c.x1, y, c.x1 + X_M, "M");
-    du::text(layer, fs, dim, LV_TEXT_ALIGN_RIGHT, c.x1, y, c.x1 + X_AV, "AV");
-    du::text(layer, fs, dim, LV_TEXT_ALIGN_RIGHT, c.x1, y, c.x1 + X_P, "P");
+    du::text(layer, fs, dim, LV_TEXT_ALIGN_LEFT, c.x1 + X_NAME, y, c.x1 + X_O - S(24), rc::L("Takım", "Team"));
+    du::text(layer, fs, dim, LV_TEXT_ALIGN_RIGHT, c.x1, y, c.x1 + X_O, rc::L("O", "P"));
+    du::text(layer, fs, dim, LV_TEXT_ALIGN_RIGHT, c.x1, y, c.x1 + X_G, rc::L("G", "W"));
+    du::text(layer, fs, dim, LV_TEXT_ALIGN_RIGHT, c.x1, y, c.x1 + X_B, rc::L("B", "D"));
+    du::text(layer, fs, dim, LV_TEXT_ALIGN_RIGHT, c.x1, y, c.x1 + X_M, rc::L("M", "L"));
+    du::text(layer, fs, dim, LV_TEXT_ALIGN_RIGHT, c.x1, y, c.x1 + X_AV, rc::L("AV", "GD"));
+    du::text(layer, fs, dim, LV_TEXT_ALIGN_RIGHT, c.x1, y, c.x1 + X_P, rc::L("P", "Pts"));
     return;
   }
   int32_t y = c.y1 + (BAR_H - lv_font_get_line_height(fm)) / 2;
@@ -322,15 +322,15 @@ void drawList(lv_event_t* e) {
   coords(e, c);
   const rc::LeagueView& v = V();
   if (!fresh()) {
-    drawMessage(layer, c, "Yükleniyor…");
+    drawMessage(layer, c, rc::L("Yükleniyor…", "Loading…"));
     return;
   }
   if (v.state == rc::VS_ERROR) {
-    drawMessage(layer, c, "Veri alınamadı, birazdan yeniden denenecek");
+    drawMessage(layer, c, rc::L("Veri alınamadı, birazdan yeniden denenecek", "Couldn't load data, retrying soon"));
     return;
   }
   if (v.state == rc::VS_EMPTY) {
-    drawMessage(layer, c, table() ? "Puan durumu yok" : "Bu tarihte maç yok");
+    drawMessage(layer, c, table() ? rc::L("Puan durumu yok", "No standings") : rc::L("Bu tarihte maç yok", "No matches on this date"));
     return;
   }
   if (table()) {

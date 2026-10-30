@@ -27,29 +27,30 @@ lv_obj_t* s_night = nullptr;
 lv_obj_t* s_phone = nullptr;
 lv_obj_t* s_quake = nullptr;
 lv_obj_t* s_maint = nullptr;
+lv_obj_t* s_lang = nullptr;
 lv_obj_t* s_overlay = nullptr;
 app::Action s_confirm = app::ACT_NONE;
 
 using theme::setText;
 
 void formatSeconds(char* buf, size_t cap, uint32_t s) {
-  if (s < 60) snprintf(buf, cap, "%u sn", static_cast<unsigned>(s));
-  else snprintf(buf, cap, "%u dk", static_cast<unsigned>(s / 60));
+  if (s < 60) snprintf(buf, cap, rc::L("%u sn", "%u s"), static_cast<unsigned>(s));
+  else snprintf(buf, cap, rc::L("%u dk", "%u min"), static_cast<unsigned>(s / 60));
 }
 
 void refreshWeb() {
   uint8_t n = webui::phones();
   char buf[24];
-  if (n) snprintf(buf, sizeof(buf), "%u eşli", static_cast<unsigned>(n));
-  else snprintf(buf, sizeof(buf), "Eşleştir");
+  if (n) snprintf(buf, sizeof(buf), rc::L("%u eşli", "%u paired"), static_cast<unsigned>(n));
+  else snprintf(buf, sizeof(buf), "%s", rc::L("Eşleştir", "Pair"));
   rows::setNavValue(s_phone, buf);
 }
 
 void refreshWifi() {
   const ui::Data& d = ui::data();
   char buf[40];
-  if (d.net.wifi) snprintf(buf, sizeof(buf), "Bağlı · %d dBm", static_cast<int>(d.net.rssi));
-  else snprintf(buf, sizeof(buf), "Bağlantı yok");
+  if (d.net.wifi) snprintf(buf, sizeof(buf), rc::L("Bağlı · %d dBm", "Connected · %d dBm"), static_cast<int>(d.net.rssi));
+  else snprintf(buf, sizeof(buf), "%s", rc::L("Bağlantı yok", "Not connected"));
   rows::setNavValue(s_wifi, buf);
 }
 
@@ -59,14 +60,15 @@ void refresh() {
   char a[12];
   char b[12];
   rows::setNavValue(s_city, st.city);
-  rows::setNavValue(s_bulb, st.bulbMac[0] ? (st.bulbName[0] ? st.bulbName : st.bulbMac) : "Eşleştirilmedi");
+  rows::setNavValue(s_lang, st.lang == rc::LANG_EN ? "English" : "Türkçe");
+  rows::setNavValue(s_bulb, st.bulbMac[0] ? (st.bulbName[0] ? st.bulbName : st.bulbMac) : rc::L("Eşleştirilmedi", "Not paired"));
   formatSeconds(a, sizeof(a), st.homeTimeoutS);
   snprintf(buf, sizeof(buf), "%%%u · %s", static_cast<unsigned>(st.brightness), a);
   rows::setNavValue(s_display, buf);
   if (st.nightMode == NIGHT_OFF) {
-    snprintf(buf, sizeof(buf), "Kapalı");
+    snprintf(buf, sizeof(buf), "%s", rc::L("Kapalı", "Off"));
   } else if (st.nightMode == NIGHT_SUN) {
-    snprintf(buf, sizeof(buf), "Güneşe göre");
+    snprintf(buf, sizeof(buf), "%s", rc::L("Güneşe göre", "By sun"));
   } else {
     rc::formatHm(a, sizeof(a), static_cast<uint8_t>(st.nightStart / 60), static_cast<uint8_t>(st.nightStart % 60));
     rc::formatHm(b, sizeof(b), static_cast<uint8_t>(st.nightEnd / 60), static_cast<uint8_t>(st.nightEnd % 60));
@@ -98,7 +100,7 @@ void confirmYes(lv_event_t* e) {
   s_confirm = app::ACT_NONE;
   closeOverlay();
   if (a == app::ACT_NONE) return;
-  ui::toast("Yeniden başlatılıyor…");
+  ui::toast(rc::L("Yeniden başlatılıyor…", "Restarting…"));
   app::request(a);
 }
 
@@ -116,7 +118,7 @@ void askConfirm(const char* text, const char* yes, app::Action a) {
   lv_obj_set_style_text_align(l, LV_TEXT_ALIGN_CENTER, 0);
   lv_label_set_text_static(l, text);
   lv_obj_align(l, LV_ALIGN_TOP_MID, 0, theme::S(26));
-  lv_obj_t* no = theme::makeButton(s_overlay, "Vazgeç", theme::fontM());
+  lv_obj_t* no = theme::makeButton(s_overlay, rc::L("Vazgeç", "Cancel"), theme::fontM());
   lv_obj_set_size(no, theme::S(130), theme::S(46));
   lv_obj_align(no, LV_ALIGN_BOTTOM_LEFT, theme::S(20), -theme::S(24));
   lv_obj_add_event_cb(no, confirmNo, LV_EVENT_CLICKED, nullptr);
@@ -195,15 +197,24 @@ void goInfo(lv_event_t* e) {
   ui::go(ui::SCR_INFO, 1);
 }
 
+void langClick(lv_event_t* e) {
+  (void)e;
+  Settings st = settings::get();
+  st.lang = st.lang == rc::LANG_EN ? rc::LANG_TR : rc::LANG_EN;
+  settings::set(st);
+  ui::toast(st.lang == rc::LANG_EN ? "Restarting in English…" : "Türkçe için yeniden başlatılıyor…");
+  app::request(app::ACT_REBOOT);
+}
+
 void wifiClick(lv_event_t* e) {
   (void)e;
-  askConfirm("WiFi bilgileri silinecek ve Rumy kurulum moduna geçecek.\nTelefonundan \"Rumy-Kurulum\" ağına bağlanıp yeniden kurabilirsin.",
-             "Sıfırla", app::ACT_WIFI_RESET);
+  askConfirm(rc::L("WiFi bilgileri silinecek ve Rumy kurulum moduna geçecek.\nTelefonundan \"Rumy-Kurulum\" ağına bağlanıp yeniden kurabilirsin.", "WiFi details will be erased and Rumy will enter setup mode.\nJoin the \"Rumy-Kurulum\" network from your phone to set it up again."),
+             rc::L("Sıfırla", "Reset"), app::ACT_WIFI_RESET);
 }
 
 void factoryClick(lv_event_t* e) {
   (void)e;
-  askConfirm("Tüm ayarlar, konum, ampul eşleşmesi ve WiFi silinecek.\nEmin misin?", "Hepsini sil",
+  askConfirm(rc::L("Tüm ayarlar, konum, ampul eşleşmesi ve WiFi silinecek.\nEmin misin?", "All settings, location, bulb pairing and WiFi will be erased.\nAre you sure?"), rc::L("Hepsini sil", "Erase all"),
              app::ACT_FACTORY_RESET);
 }
 
@@ -211,7 +222,7 @@ void deleted(lv_event_t* e) {
   (void)e;
   closeOverlay();
   s_confirm = app::ACT_NONE;
-  s_scr = s_city = s_bulb = s_wifi = s_display = s_night = s_phone = s_quake = s_maint = nullptr;
+  s_scr = s_city = s_bulb = s_wifi = s_display = s_night = s_phone = s_quake = s_maint = s_lang = nullptr;
 }
 
 }
@@ -219,28 +230,29 @@ void deleted(lv_event_t* e) {
 lv_obj_t* create() {
   s_scr = rows::screen();
   lv_obj_add_event_cb(s_scr, deleted, LV_EVENT_DELETE, nullptr);
-  rows::header(s_scr, RS_SETTINGS "  Ayarlar", true, goHome);
+  rows::header(s_scr, rc::L(RS_SETTINGS "  Ayarlar", RS_SETTINGS "  Settings"), true, goHome);
 
-  rows::section(s_scr, "GENEL");
-  rows::nav(s_scr, RS_PIN "  Konum", goLocation, &s_city);
-  rows::nav(s_scr, RS_BULB "  Ampul", goPair, &s_bulb);
+  rows::section(s_scr, rc::L("GENEL", "GENERAL"));
+  rows::nav(s_scr, rc::L(RS_PIN "  Konum", RS_PIN "  Location"), goLocation, &s_city);
+  rows::nav(s_scr, rc::L(RS_BULB "  Ampul", RS_BULB "  Bulb"), goPair, &s_bulb);
   rows::nav(s_scr, RS_WIFI "  WiFi", wifiClick, &s_wifi);
+  rows::nav(s_scr, RS_GLOBE "  Language / Dil", langClick, &s_lang);
 
-  rows::section(s_scr, "EKRAN");
-  rows::nav(s_scr, RS_SUN "  Ekran", goDisplay, &s_display);
-  rows::nav(s_scr, RS_MOON "  Gece modu", goNight, &s_night);
+  rows::section(s_scr, rc::L("EKRAN", "DISPLAY"));
+  rows::nav(s_scr, rc::L(RS_SUN "  Ekran", RS_SUN "  Display"), goDisplay, &s_display);
+  rows::nav(s_scr, rc::L(RS_MOON "  Gece modu", RS_MOON "  Night mode"), goNight, &s_night);
 
-  rows::section(s_scr, "BAĞLANTI");
-  rows::nav(s_scr, RS_GLOBE "  Telefon", goPhone, &s_phone);
-  lv_obj_t* r = rows::row(s_scr, RS_WARNING "  Deprem eşiği", rows::H);
+  rows::section(s_scr, rc::L("BAĞLANTI", "CONNECTION"));
+  rows::nav(s_scr, rc::L(RS_GLOBE "  Telefon", RS_GLOBE "  Phone"), goPhone, &s_phone);
+  lv_obj_t* r = rows::row(s_scr, rc::L(RS_WARNING "  Deprem eşiği", RS_WARNING "  Quake threshold"), rows::H);
   s_quake = rows::stepper(r, quakeStep);
 
-  rows::section(s_scr, "SİSTEM");
-  r = rows::row(s_scr, RS_REFRESH "  04:00 yeniden başlat", rows::H);
+  rows::section(s_scr, rc::L("SİSTEM", "SYSTEM"));
+  r = rows::row(s_scr, rc::L(RS_REFRESH "  04:00 yeniden başlat", RS_REFRESH "  Restart at 04:00"), rows::H);
   s_maint = rows::toggle(r, maintEvent);
-  rows::nav(s_scr, RS_CHART "  Tanılama", goDiag, nullptr);
-  rows::nav(s_scr, RS_INFO "  Hakkında", goInfo, nullptr);
-  r = rows::nav(s_scr, RS_TRASH "  Fabrika ayarları", factoryClick, nullptr);
+  rows::nav(s_scr, rc::L(RS_CHART "  Tanılama", RS_CHART "  Diagnostics"), goDiag, nullptr);
+  rows::nav(s_scr, rc::L(RS_INFO "  Hakkında", RS_INFO "  About"), goInfo, nullptr);
+  r = rows::nav(s_scr, rc::L(RS_TRASH "  Fabrika ayarları", RS_TRASH "  Factory reset"), factoryClick, nullptr);
   lv_obj_set_style_border_color(r, theme::col(0x4A2528), 0);
 
   refresh();

@@ -1,0 +1,51 @@
+name: Web kurulum
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      etiket:
+        description: "Yayinlanacak surum etiketi (bos birakilirsa en son surum)"
+        required: false
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  site:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Surumun tam imajlarini indir
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ETIKET: ${{ github.event.release.tag_name || inputs.etiket }}
+        run: |
+          if [ -z "$ETIKET" ]; then
+            ETIKET="$(gh release view -R "$GITHUB_REPOSITORY" --json tagName -q .tagName)"
+          fi
+          gh release download "$ETIKET" -R "$GITHUB_REPOSITORY" -p '*-tam-0x0.bin' -D indirilen
+          echo "SURUM=${ETIKET#v}" >> "$GITHUB_ENV"
+      - name: Siteyi olustur
+        run: bash tools/web_kurulum.sh "$SURUM" indirilen _site
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  yayin:
+    needs: site
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

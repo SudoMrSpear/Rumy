@@ -7,6 +7,7 @@
 #include "settings/settings.h"
 #include "theme.h"
 #include "ui.h"
+#include "text_tr.h"
 
 namespace scr_display {
 
@@ -56,15 +57,15 @@ void refresh() {
   if (!s_dragging) lv_slider_set_value(s_bri, st.brightness, LV_ANIM_OFF);
   snprintf(buf, sizeof(buf), "%%%u", static_cast<unsigned>(s_dragging ? lv_slider_get_value(s_bri) : st.brightness));
   setText(s_briVal, buf);
-  if (st.homeTimeoutS < 60) snprintf(buf, sizeof(buf), "%u sn", static_cast<unsigned>(st.homeTimeoutS));
-  else snprintf(buf, sizeof(buf), "%u dk", static_cast<unsigned>(st.homeTimeoutS / 60));
+  if (st.homeTimeoutS < 60) snprintf(buf, sizeof(buf), rc::L("%u sn", "%u s"), static_cast<unsigned>(st.homeTimeoutS));
+  else snprintf(buf, sizeof(buf), rc::L("%u dk", "%u min"), static_cast<unsigned>(st.homeTimeoutS / 60));
   setText(s_home, buf);
-  snprintf(buf, sizeof(buf), "%u sn", static_cast<unsigned>(st.cardSeconds));
+  snprintf(buf, sizeof(buf), rc::L("%u sn", "%u s"), static_cast<unsigned>(st.cardSeconds));
   setText(s_card, buf);
-  if (st.eyeSleepMin) snprintf(buf, sizeof(buf), "%u dk", static_cast<unsigned>(st.eyeSleepMin));
-  else snprintf(buf, sizeof(buf), "Kapalı");
+  if (st.eyeSleepMin) snprintf(buf, sizeof(buf), rc::L("%u dk", "%u min"), static_cast<unsigned>(st.eyeSleepMin));
+  else snprintf(buf, sizeof(buf), "%s", rc::L("Kapalı", "Off"));
   setText(s_sleep, buf);
-  snprintf(buf, sizeof(buf), "Yön %u", static_cast<unsigned>(st.touchRot));
+  snprintf(buf, sizeof(buf), rc::L("Yön %u", "Mode %u"), static_cast<unsigned>(st.touchRot));
   rows::setNavValue(s_touch, buf);
 }
 
@@ -85,7 +86,7 @@ void revert() {
 void overlayText() {
   if (!s_overlayText) return;
   char buf[128];
-  snprintf(buf, sizeof(buf), "Dokunmatik yönü %u denendi.\nAşağıdaki düğmeye dokunabiliyorsan onayla.\n%u sn içinde geri alınacak.",
+  snprintf(buf, sizeof(buf), rc::L("Dokunmatik yönü %u denendi.\nAşağıdaki düğmeye dokunabiliyorsan onayla.\n%u sn içinde geri alınacak.", "Trying touch orientation %u.\nIf you can tap the button below, confirm.\nReverting in %u s."),
            static_cast<unsigned>(s_touchNew), static_cast<unsigned>(s_left));
   lv_label_set_text(s_overlayText, buf);
 }
@@ -96,7 +97,7 @@ void tick(lv_timer_t* t) {
   if (s_left == 0) {
     revert();
     closeOverlay();
-    ui::toast("Dokunmatik yönü geri alındı");
+    ui::toast(rc::L("Dokunmatik yönü geri alındı", "Touch orientation reverted"));
     return;
   }
   overlayText();
@@ -111,7 +112,7 @@ void confirm(lv_event_t* e) {
   Settings st = settings::get();
   st.touchRot = rot;
   settings::set(st);
-  ui::toast("Dokunmatik yönü kaydedildi");
+  ui::toast(rc::L("Dokunmatik yönü kaydedildi", "Touch orientation saved"));
 }
 
 void touchClick(lv_event_t* e) {
@@ -132,7 +133,7 @@ void touchClick(lv_event_t* e) {
   lv_obj_set_width(s_overlayText, theme::FW(290));
   lv_obj_set_style_text_align(s_overlayText, LV_TEXT_ALIGN_CENTER, 0);
   lv_obj_align(s_overlayText, LV_ALIGN_TOP_MID, 0, theme::S(12));
-  lv_obj_t* ok = theme::makeButton(s_overlay, RS_OK "  Evet, doğru", theme::fontL());
+  lv_obj_t* ok = theme::makeButton(s_overlay, rc::L(RS_OK "  Evet, doğru", RS_OK "  Yes, that's right"), theme::fontL());
   lv_obj_set_size(ok, theme::S(220), theme::S(84));
   lv_obj_align(ok, LV_ALIGN_CENTER, 0, theme::S(44));
   lv_obj_set_style_border_color(ok, theme::col(theme::C_EYE), 0);
@@ -200,19 +201,19 @@ void deleted(lv_event_t* e) {
 lv_obj_t* create() {
   s_scr = rows::screen();
   lv_obj_add_event_cb(s_scr, deleted, LV_EVENT_DELETE, nullptr);
-  rows::header(s_scr, "Ekran", false, back);
-  lv_obj_t* r = rows::row(s_scr, RS_SUN "  Parlaklık", theme::S(66));
+  rows::header(s_scr, rc::L("Ekran", "Display"), false, back);
+  lv_obj_t* r = rows::row(s_scr, rc::L(RS_SUN "  Parlaklık", RS_SUN "  Brightness"), theme::S(66));
   s_briVal = rows::value(r);
   s_bri = rows::slider(r, 5, 100, briEvent);
-  r = rows::row(s_scr, RS_HOME "  Ana ekran", rows::H);
+  r = rows::row(s_scr, rc::L(RS_HOME "  Ana ekran", RS_HOME "  Home screen"), rows::H);
   s_home = rows::stepper(r, homeStep);
-  r = rows::row(s_scr, RS_INFO "  Kart süresi", rows::H);
+  r = rows::row(s_scr, rc::L(RS_INFO "  Kart süresi", RS_INFO "  Card time"), rows::H);
   s_card = rows::stepper(r, cardStep);
-  r = rows::row(s_scr, RS_EYE "  Göz uykusu", rows::H);
+  r = rows::row(s_scr, rc::L(RS_EYE "  Göz uykusu", RS_EYE "  Eye sleep"), rows::H);
   s_sleep = rows::stepper(r, sleepStep);
-  rows::nav(s_scr, RS_HAND "  Dokunmatik yönü", touchClick, &s_touch);
-  if (display::touchCalSupported()) rows::nav(s_scr, RS_HAND "  Dokunmatik ayarı", calClick, nullptr);
-  lv_obj_t* hint = rows::section(s_scr, "Ana ekran: dokunulmazsa ana ekrana dönme süresi. Göz uykusu: bu süre dokunulmazsa Rumy uyur, dokununca uyanır. Dokunmatik yönü değişince 10 sn içinde onaylamazsan eski haline döner. Dokunmatik ayarı: dokunuşlar düğmeyi ıskalıyorsa artılara dokunarak düzeltir.");
+  rows::nav(s_scr, rc::L(RS_HAND "  Dokunmatik yönü", RS_HAND "  Touch orientation"), touchClick, &s_touch);
+  if (display::touchCalSupported()) rows::nav(s_scr, rc::L(RS_HAND "  Dokunmatik ayarı", RS_HAND "  Touch calibration"), calClick, nullptr);
+  lv_obj_t* hint = rows::section(s_scr, rc::L("Ana ekran: dokunulmazsa ana ekrana dönme süresi. Göz uykusu: bu süre dokunulmazsa Rumy uyur, dokununca uyanır. Dokunmatik yönü değişince 10 sn içinde onaylamazsan eski haline döner. Dokunmatik ayarı: dokunuşlar düğmeyi ıskalıyorsa artılara dokunarak düzeltir.", "Home screen: how long without touch before returning home. Eye sleep: Rumy sleeps after this long without touch and wakes on tap. A new touch orientation reverts unless you confirm within 10 s. Touch calibration: if taps miss buttons, fix it by tapping the crosses."));
   lv_label_set_long_mode(hint, LV_LABEL_LONG_MODE_WRAP);
   refresh();
   return s_scr;

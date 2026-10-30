@@ -8,6 +8,7 @@
 #include "theme.h"
 #include "ui.h"
 #include "wiz/wiz.h"
+#include "text_tr.h"
 
 namespace scr_pair {
 
@@ -42,7 +43,7 @@ void rowClick(lv_event_t* e) {
   intptr_t idx = reinterpret_cast<intptr_t>(lv_event_get_user_data(e));
   if (idx < 0 || idx >= MAX_ROWS || !s_macs[idx][0]) return;
   wiz::pair(s_macs[idx]);
-  ui::toast("Ampul eşleştirildi · kısa bir yanıp sönme ile tanıyabilirsin");
+  ui::toast(rc::L("Ampul eşleştirildi · kısa bir yanıp sönme ile tanıyabilirsin", "Bulb paired · it blinks briefly so you can spot it"));
 }
 
 void rescan(lv_event_t* e) {
@@ -54,7 +55,7 @@ void rescan(lv_event_t* e) {
 void forget(lv_event_t* e) {
   (void)e;
   wiz::forget();
-  ui::toast("Eşleşme kaldırıldı");
+  ui::toast(rc::L("Eşleşme kaldırıldı", "Pairing removed"));
 }
 
 void back(lv_event_t* e) {
@@ -109,7 +110,7 @@ void rebuild() {
     lv_obj_set_pos(t, theme::S(48), theme::S(5));
     char ip[20];
     formatIp(fb.ip, ip, sizeof(ip));
-    snprintf(buf, sizeof(buf), "%s%s", ip, mine ? "  ·  eşleşmiş" : "  ·  dokun ve eşleştir");
+    snprintf(buf, sizeof(buf), "%s%s", ip, mine ? rc::L("  ·  eşleşmiş", "  ·  paired") : rc::L("  ·  dokun ve eşleştir", "  ·  tap to pair"));
     lv_obj_t* sub = theme::makeLabel(r, theme::fontS(), mine ? theme::C_EYE : theme::C_TEXT2);
     lv_label_set_text(sub, buf);
     lv_obj_set_pos(sub, theme::S(48), theme::S(27));
@@ -120,9 +121,9 @@ void rebuild() {
 void updateStatus() {
   const ui::Data& d = ui::data();
   char buf[64];
-  if (d.bulb.scanning) snprintf(buf, sizeof(buf), RS_SEARCH "  Ağda WiZ ampul aranıyor…");
-  else if (d.bulb.candidateCount == 0) snprintf(buf, sizeof(buf), "Ampul bulunamadı · ampul açık ve aynı ağda mı?");
-  else snprintf(buf, sizeof(buf), "%u ampul bulundu · birine dokun", static_cast<unsigned>(d.bulb.candidateCount));
+  if (d.bulb.scanning) snprintf(buf, sizeof(buf), "%s", rc::L(RS_SEARCH "  Ağda WiZ ampul aranıyor…", RS_SEARCH "  Searching for WiZ bulbs…"));
+  else if (d.bulb.candidateCount == 0) snprintf(buf, sizeof(buf), "%s", rc::L("Ampul bulunamadı · ampul açık ve aynı ağda mı?", "No bulb found · is it on and on the same network?"));
+  else snprintf(buf, sizeof(buf), rc::L("%u ampul bulundu · birine dokun", "%u bulbs found · tap one"), static_cast<unsigned>(d.bulb.candidateCount));
   setText(s_status, buf);
   if (d.settings.bulbMac[0]) lv_obj_remove_flag(s_forget, LV_OBJ_FLAG_HIDDEN);
   else lv_obj_add_flag(s_forget, LV_OBJ_FLAG_HIDDEN);
@@ -148,7 +149,7 @@ lv_obj_t* create() {
   lv_obj_set_pos(bk, theme::S(6), theme::S(4));
   lv_obj_add_event_cb(bk, back, LV_EVENT_CLICKED, nullptr);
   lv_obj_t* title = theme::makeLabel(s_scr, theme::fontL(), theme::C_TEXT);
-  lv_label_set_text_static(title, "Ampul eşleştirme");
+  lv_label_set_text_static(title, rc::L("Ampul eşleştirme", "Bulb pairing"));
   lv_obj_set_pos(title, theme::S(60), theme::S(9));
 
   s_status = theme::makeLabel(s_scr, theme::fontS(), theme::C_TEXT2);
@@ -166,12 +167,12 @@ lv_obj_t* create() {
   lv_obj_set_flex_align(s_list, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
   lv_obj_set_style_pad_row(s_list, theme::S(6), 0);
 
-  lv_obj_t* scan = theme::makeButton(s_scr, RS_REFRESH "  Yeniden ara", theme::fontM());
+  lv_obj_t* scan = theme::makeButton(s_scr, rc::L(RS_REFRESH "  Yeniden ara", RS_REFRESH "  Search again"), theme::fontM());
   const int32_t bw = (theme::FW(308) - theme::S(8)) / 2;
   lv_obj_set_size(scan, bw, theme::S(40));
   lv_obj_set_pos(scan, theme::S(6), theme::S(196));
   lv_obj_add_event_cb(scan, rescan, LV_EVENT_CLICKED, nullptr);
-  s_forget = theme::makeButton(s_scr, RS_TRASH "  Unut", theme::fontM());
+  s_forget = theme::makeButton(s_scr, rc::L(RS_TRASH "  Unut", RS_TRASH "  Forget"), theme::fontM());
   lv_obj_set_size(s_forget, bw, theme::S(40));
   lv_obj_set_pos(s_forget, theme::S(6) + bw + theme::S(8), theme::S(196));
   lv_obj_set_style_text_color(s_forget, theme::col(theme::C_DANGER), 0);

@@ -10,6 +10,7 @@
 #include "ui.h"
 #include "wiz/wiz.h"
 #include "wiz_proto.h"
+#include "text_tr.h"
 
 namespace scr_light {
 
@@ -56,6 +57,9 @@ const Scene kScenes[SCENE_COUNT] = {
     {"Mum", RS_FIRE, 0xFF8A2A, rc::PILOT_SCENE, 29, 50, 0, 0},
     {"Gece", RS_MOON, 0xFF6A1A, rc::PILOT_SCENE, 14, 10, 0, 0},
 };
+
+const char* const kSceneNamesEn[SCENE_COUNT] = {"Morning", "Work", "Reading", "Dinner",
+                                                "Evening", "Movie", "Candle", "Night"};
 
 lv_grad_dsc_t s_hueGrad;
 lv_grad_dsc_t s_tempGrad;
@@ -159,8 +163,8 @@ void refreshControls() {
   snprintf(buf, sizeof(buf), "%%%u", static_cast<unsigned>(p.dim));
   setText(s_dimVal, buf);
   if (p.mode == rc::PILOT_TEMP) snprintf(buf, sizeof(buf), "%u K", static_cast<unsigned>(p.temp));
-  else if (p.mode == rc::PILOT_SCENE) snprintf(buf, sizeof(buf), "Sahne");
-  else snprintf(buf, sizeof(buf), "Renk");
+  else if (p.mode == rc::PILOT_SCENE) snprintf(buf, sizeof(buf), "%s", rc::L("Sahne", "Scene"));
+  else snprintf(buf, sizeof(buf), "%s", rc::L("Renk", "Color"));
   setText(s_tempVal, buf);
   int8_t act = activeScene(p);
   if (act != s_active) {
@@ -201,9 +205,9 @@ void showCover(bool show) {
     lv_obj_set_style_bg_opa(s_cover, LV_OPA_90, 0);
     lv_obj_add_flag(s_cover, LV_OBJ_FLAG_CLICKABLE);
     lv_obj_t* msg = theme::makeLabel(s_cover, theme::fontM(), theme::C_TEXT);
-    lv_label_set_text_static(msg, "Henüz bir WiZ ampul eşleştirilmedi.");
+    lv_label_set_text_static(msg, rc::L("Henüz bir WiZ ampul eşleştirilmedi.", "No WiZ bulb paired yet."));
     lv_obj_align(msg, LV_ALIGN_CENTER, 0, -S(30));
-    lv_obj_t* pb = theme::makeButton(s_cover, RS_SEARCH "  Ampul bul ve eşleştir", theme::fontM());
+    lv_obj_t* pb = theme::makeButton(s_cover, rc::L(RS_SEARCH "  Ampul bul ve eşleştir", RS_SEARCH "  Find and pair a bulb"), theme::fontM());
     lv_obj_set_size(pb, S(240), S(44));
     lv_obj_align(pb, LV_ALIGN_CENTER, 0, S(20));
     lv_obj_set_style_border_color(pb, theme::col(theme::C_EYE), 0);
@@ -218,24 +222,24 @@ void updateStatus() {
   const ui::Data& d = ui::data();
   const BulbState& b = d.bulb;
   bool paired = d.settings.bulbMac[0] != 0;
-  setText(s_name, d.settings.bulbName[0] ? d.settings.bulbName : "WiZ ampul");
+  setText(s_name, d.settings.bulbName[0] ? d.settings.bulbName : rc::L("WiZ ampul", "WiZ bulb"));
   char buf[48];
   uint32_t dot = theme::C_DANGER;
   if (!paired) {
-    snprintf(buf, sizeof(buf), "Eşleştirilmedi");
+    snprintf(buf, sizeof(buf), "%s", rc::L("Eşleştirilmedi", "Not paired"));
   } else if (b.online && b.writeDenied) {
-    snprintf(buf, sizeof(buf), "Komut izni yok · WiZ");
+    snprintf(buf, sizeof(buf), "%s", rc::L("Komut izni yok · WiZ", "No control permission · WiZ"));
     dot = theme::C_WARN;
   } else if (b.online) {
-    snprintf(buf, sizeof(buf), "Çevrimiçi · %u.%u.%u.%u", static_cast<unsigned>(b.ip & 0xFF),
+    snprintf(buf, sizeof(buf), rc::L("Çevrimiçi · %u.%u.%u.%u", "Online · %u.%u.%u.%u"), static_cast<unsigned>(b.ip & 0xFF),
              static_cast<unsigned>((b.ip >> 8) & 0xFF), static_cast<unsigned>((b.ip >> 16) & 0xFF),
              static_cast<unsigned>((b.ip >> 24) & 0xFF));
     dot = theme::C_OK;
   } else if (b.found) {
-    snprintf(buf, sizeof(buf), "Yanıt vermiyor");
+    snprintf(buf, sizeof(buf), "%s", rc::L("Yanıt vermiyor", "Not responding"));
     dot = theme::C_WARN;
   } else {
-    snprintf(buf, sizeof(buf), "Ağda aranıyor…");
+    snprintf(buf, sizeof(buf), "%s", rc::L("Ağda aranıyor…", "Searching network…"));
     dot = theme::C_WARN;
   }
   setText(s_status, buf);
@@ -363,7 +367,7 @@ void sceneDraw(lv_event_t* e) {
     int32_t iy = y + (SCENE_H - block) / 2;
     du::text(layer, fi, sw, LV_TEXT_ALIGN_CENTER, x, iy, x + SCENE_W - 1, kScenes[i].icon);
     du::text(layer, fn, theme::col(theme::C_TEXT), LV_TEXT_ALIGN_CENTER, x, iy + lhI - SCENE_OVERLAP, x + SCENE_W - 1,
-             kScenes[i].name);
+             rc::L(kScenes[i].name, kSceneNamesEn[i]));
   }
 }
 

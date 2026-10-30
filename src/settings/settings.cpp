@@ -11,6 +11,7 @@
 #include "k2.h"
 #include "pairing.h"
 #include "provinces.h"
+#include "text_tr.h"
 
 namespace settings {
 
@@ -59,6 +60,7 @@ Settings defaults() {
   s.goalSl = 1;
   s.goalUcl = 1;
   s.football = 1;
+  s.lang = rc::LANG_EN;
   return s;
 }
 
@@ -99,6 +101,7 @@ void save(const Settings& s) {
   p.putUChar("gsl", s.goalSl);
   p.putUChar("gucl", s.goalUcl);
   p.putUChar("fut", s.football);
+  p.putUChar("dil", s.lang);
   p.putUInt("tc1", s.teamC1);
   p.putUInt("tc2", s.teamC2);
   p.end();
@@ -143,6 +146,7 @@ bool sane(Settings& s) {
   if (s.goalSl > 1) s.goalSl = 1;
   if (s.goalUcl > 1) s.goalUcl = 1;
   if (s.football > 1) s.football = 1;
+  if (s.lang > rc::LANG_EN) s.lang = rc::LANG_EN;
   s.teamC1 &= 0xFFFFFF;
   s.teamC2 &= 0xFFFFFF;
   if (s.bulbMac[0]) {
@@ -183,6 +187,7 @@ void load() {
     s.goalSl = p.getUChar("gsl", s.goalSl);
     s.goalUcl = p.getUChar("gucl", s.goalUcl);
     s.football = p.getUChar("fut", s.football);
+    s.lang = p.getUChar("dil", s.lang);
     s.teamC1 = p.getUInt("tc1", s.teamC1);
     s.teamC2 = p.getUInt("tc2", s.teamC2);
     s_sleepUntil = p.getUInt("uyku", 0);
@@ -193,6 +198,7 @@ void load() {
     p.end();
   }
   sane(s);
+  rc::setLang(s.lang);
   lock();
   s_cur = s;
   unlock();

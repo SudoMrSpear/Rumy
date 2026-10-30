@@ -163,6 +163,7 @@ button.row.sel .lbl{color:var(--eye)}
 <div class="nav"><button data-back><b>‹</b>Rumy</button><span class="t">Genel</span></div>
 <div style="height:8px"></div>
 <div class="grp">
+<label class="row"><span class="lbl">Language / Dil</span><select class="v" id="lang"><option value="1">English</option><option value="0">Türkçe</option></select><span class="chev">›</span></label>
 <label class="row"><span class="lbl">Adın</span><input class="v" id="name" maxlength="23" data-bytes="23" placeholder="Selamlamada görünür" enterkeyhint="done"></label>
 </div>
 <p class="gh">Konum</p>
@@ -302,12 +303,21 @@ button.row.sel .lbl{color:var(--eye)}
 </div>
 <div id="toast"></div>
 <script>
+const LANG=(()=>{try{return localStorage.getItem("rumy.lang")||"1"}catch(e){return "1"}})();
+const EN=LANG==="1";
+const TR_EN={"Rumy'ye bağlan":"Connect to Rumy","Rumy'de":"On Rumy, open","Ayarlar → Telefon":"Settings → Phone","ekranındaki":"and enter the","4 haneli kodu gir.":"4-digit code shown there.","Bu cihaz Rumy ile aynı ağda olmalı.":"This device must be on the same network as Rumy.","Rumy kapalı ya da bu cihaz başka bir ağda. Evdeki WiFi'ye bağlıyken tekrar dene.":"Rumy is off or this device is on another network. Try again while connected to your home WiFi.","Tekrar dene":"Try again","Genel":"General","Görünüm":"Appearance","Ekran":"Display","Futbol":"Football","Işık":"Light","3D yazıcı":"3D printer","Önemli günler":"Special days","Bakım":"Maintenance","Yenile, yeniden başlat":"Refresh, restart","Adın":"Your name","Konum":"Location","İl":"Province","Özel konum":"Custom location","Yer adı":"Place name","Enlem":"Latitude","Boylam":"Longitude","Konumu kaydet":"Save location","Hava durumu ve gün doğumu/batımı bu konuma göre gelir.":"Weather and sunrise/sunset are based on this location.","Deprem":"Earthquakes","Gösterme eşiği":"Show from","M2,0 ve üzeri":"M2.0 and above","M2,5 ve üzeri":"M2.5 and above","M3,0 ve üzeri":"M3.0 and above","M3,5 ve üzeri":"M3.5 and above","M4,0 ve üzeri":"M4.0 and above","Şimdi otomatiğe dön":"Back to automatic now","İfade":"Expression","Aksesuar":"Accessory","Efekt":"Effect","Seçim yalnızca şimdilik geçerli; Rumy kendi hâlini değiştirdiğinde (hava, müzik, maç, gece, ajan…) otomatik görünüme döner.":"Your pick is temporary; when Rumy's own state changes (weather, music, match, night, agent…) it goes back to automatic.","Parlaklık":"Brightness","Ana ekrana dönüş":"Return to home","30 sn":"30 s","1 dk":"1 min","2 dk":"2 min","5 dk":"5 min","10 dk":"10 min","15 dk":"15 min","30 dk":"30 min","Kart değişimi":"Card change","3 sn":"3 s","5 sn":"5 s","8 sn":"8 s","10 sn":"10 s","15 sn":"15 s","Göz uykusu":"Eye sleep","Kapalı":"Off","Gece modu":"Night mode","Gün batımı":"Sunset","Belirli saatler":"Set hours","Başlangıç":"Start","Bitiş":"End","Gece parlaklığı":"Night brightness","Gece modunda Rumy'nin ekranı bu parlaklığa kısılır. Ana sayfadaki \"Şimdi uyut\" bitiş saatine kadar hemen uyutur.":"In night mode Rumy's screen dims to this brightness. \"Sleep now\" on the main page puts Rumy to sleep right away until the end time.","Maç takibi":"Match tracking","Takımının maçları, gol bildirimleri ve maç kartı":"Your team's matches, goal alerts and match card","Kapalıyken Rumy maç sorgulamaz; gol bildirimi ve maç kartı çıkmaz. Rumy'deki Futbol sayfası elle açılabilir.":"When off, Rumy doesn't check matches and shows no goal alerts or match card. The Football page on Rumy can still be opened by hand.","Takımım":"My team","Takımının maçında tam ekran gol, kart ve skor gösterilir; gol ekranı ve ampul takımının renklerine boyanır.":"During your team's match Rumy shows full-screen goals, cards and the score; the goal screen and the bulb take your team's colours.","Diğer maçların gol bildirimleri":"Goal alerts from other matches","Şampiyonlar Ligi":"Champions League","Premier Lig":"Premier League","Kapatırsan o ligin golleri bildirim olarak gelmez; futbol sayfasında görünmeye devam eder.":"If off, that league's goals aren't alerted; they still show on the football page.","Ampul":"Bulb","Ad":"Name","Durum":"Status","Adres":"Address","Başka bir ampul eşleştirmek için Rumy'de Ayarlar → Ampul.":"To pair another bulb, use Settings → Bulb on Rumy.","Rumy ampulü ne zaman değiştirsin":"When Rumy changes the bulb","Kod ajanı seni bekliyor":"Coding agent is waiting for you","Claude ya da Codex onay beklerken 4 kez kırmızı yanıp söner, sonra eski hâline döner":"Blinks red 4 times when Claude or Codex needs approval, then goes back","Takımının golü":"Your team scores","8 saniye takım renkleri":"Team colours for 8 seconds","Ampul kapalıysa dokunma":"Leave the bulb alone if it's off","Uyarı ve kutlama yalnızca ampul açıkken çalışır":"Alerts and celebrations only run while the bulb is on","Yazıcının ekranında Ayarlar → Ağ bölümünde görünür. Rumy baskının durumunu, hataları ve bitiş saatini buradan okur.":"Shown on the printer's screen under Settings → Network. Rumy reads print status, errors and finish time from here.","Doğum günleri, yıl dönümleri ve kendi günlerin. Yıl yazarsan kaçıncı yıl olduğu da gösterilir.":"Birthdays, anniversaries and your own days. Add a year to show which anniversary it is.","+ Gün ekle":"+ Add day","Günler":"Days","Gün":"Day","Ay":"Month","Yıl":"Year","Tür":"Type","Doğum günü":"Birthday","Yıl dönümü":"Anniversary","Diğer":"Other","Kaydet":"Save","Sil":"Delete","Her gece 04:00'te yeniden başlat":"Restart every night at 04:00","Verileri yenile":"Refresh data","Yeniden başlat":"Restart","Bu cihazın eşleşmesini kaldır":"Unpair this device","Eşleştirme kodu":"Pairing code","Selamlamada görünür":"Shown in the greeting","ör. Kadıköy":"e.g. Kadıköy","boş = kapalı":"empty = off","ör. Annemin doğum günü":"e.g. Mom's birthday","isteğe bağlı":"optional","Ocak":"January","Şubat":"February","Mart":"March","Nisan":"April","Mayıs":"May","Haziran":"June","Temmuz":"July","Ağustos":"August","Eylül":"September","Ekim":"October","Kasım":"November","Aralık":"December","Normal":"Normal","Mutlu":"Happy","Uykulu":"Sleepy","Uyuyor":"Sleeping","Üzgün":"Sad","Şaşkın":"Surprised","Yukarı bakıyor":"Looking up","Kutlama":"Celebrating","Sakin":"Calm","Müzik":"Music","Gözleri kısık":"Squinting","Korkmuş":"Scared","Gözleri sıkılı":"Eyes shut tight","Yok":"None","Bayrak":"Flag","Parti şapkası":"Party hat","Şemsiye":"Umbrella","Güneş gözlüğü":"Sunglasses","Ter":"Sweat","Bulut":"Cloud","Sis":"Fog","Çisenti":"Drizzle","Yağmur":"Rain","Kar":"Snow","Fırtına":"Storm","Rüzgâr":"Wind","Titreme":"Shiver","Yıldızlar":"Stars","Gözyaşı":"Tears","Konfeti":"Confetti","<span class=\"dot\" style=\"background:var(--bad)\"></span>Ulaşılamıyor":"<span class=\"dot\" style=\"background:var(--bad)\"></span>Unreachable","Son görülme ":"Last seen "," g ":" d "," sa":" h"," sa ":" h "," dk":" min","Takım ":"Team ","Takım yok":"No team","<span class=\"dot\" style=\"background:#5e5ce6\"></span>Uyuyor":"<span class=\"dot\" style=\"background:#5e5ce6\"></span>Sleeping","<span class=\"dot\"></span>Çevrimiçi":"<span class=\"dot\"></span>Online","Uyanış ":"Wakes at "," · dokununca kısa süre açılır":" · a tap wakes it briefly"," açık":" up","<svg viewBox=\"0 0 24 24\"><circle cx=\"12\" cy=\"12\" r=\"4\"/><path d=\"M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4\"/></svg>Uyandır":"<svg viewBox=\"0 0 24 24\"><circle cx=\"12\" cy=\"12\" r=\"4\"/><path d=\"M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4\"/></svg>Wake up","<svg viewBox=\"0 0 24 24\"><path d=\"M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z\"/></svg>Şimdi uyut · uyanış ":"<svg viewBox=\"0 0 24 24\"><path d=\"M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z\"/></svg>Sleep now · wakes "," · gece ":" · night "," · gün batımı":" · sunset"," · uyarı ":" · alerts ","açık":"on","kapalı":"off","Eşleşmedi":"Not paired"," gün":" days","<span class=\"dot\"></span>Çevrimiçi · ":"<span class=\"dot\"></span>Online · ","Sürüm":"Version","Çalışma":"Uptime"," · açılış #":" · boot #","Bellek":"Memory"," KB boş (en düşük ":" KB free (lowest ","SD kart":"SD card","takılı":"inserted","yok":"none","Eşli telefon":"Paired phones","Senin seçimin":"Your pick","Otomatik":"Automatic","Rumy'nin hâli bir dahaki değişişinde kendiliğinden otomatiğe döner.":"Goes back to automatic the next time Rumy's state changes.","Bir görünüm seç; Rumy hemen uygular.":"Pick a look; Rumy applies it right away.","Otomatiğe döndü":"Back to automatic","Rumy'ye uygulandı":"Applied to Rumy","Takımım yok":"No team","Yalnızca diğer maçların golleri":"Only goals from other matches","<span class=\"lbl sub\">Henüz gün eklenmedi.</span>":"<span class=\"lbl sub\">No days added yet.</span>","Yeni gün":"New day","Bağlanıyor…":"Connecting…","Rumy'ye ulaşılamadı. Aynı WiFi'de misin?":"Couldn't reach Rumy. Are you on the same WiFi?","Eşleşti":"Paired","Önce Rumy'de Ayarlar → Telefon ekranını aç.":"First open Settings → Phone on Rumy.","Çok fazla deneme. 1 dakika bekle.":"Too many attempts. Wait 1 minute.","Kod yanlış, tekrar dene.":"Wrong code, try again.","Rumy uyudu":"Rumy is asleep","Rumy uyandı":"Rumy is awake","Yer adı ve geçerli koordinat gir":"Enter a place name and valid coordinates","Adres geçersiz (ör. 192.168.1.50)":"Invalid address (e.g. 192.168.1.50)","En fazla 24 gün eklenebilir":"You can add up to 24 days","Bir ad yaz":"Enter a name","Yıl 1900–2199 arası olmalı":"Year must be between 1900 and 2199","Kaydedildi":"Saved","Bu gün silinsin mi?":"Delete this day?","Silindi":"Deleted","Veriler yenileniyor":"Refreshing data","Rumy yeniden başlatılsın mı?":"Restart Rumy?","Yeniden başlatılıyor…":"Restarting…","Bu cihaz Rumy'den çıkarılsın mı? Yeniden bağlanmak için Rumy'deki kod gerekir.":"Remove this device from Rumy? You'll need the code on Rumy to reconnect.","Özel":"Custom","Rumy kabul etmedi (":"Rumy refused (","Ulaşılamıyor":"Unreachable","K2 IP adresi":"K2 IP address","Language / Dil":"Language / Dil"};
+const T=s=>EN&&Object.prototype.hasOwnProperty.call(TR_EN,s)?TR_EN[s]:s;
+const pct=v=>EN?v+"%":"%"+v;
+if(EN){document.documentElement.lang="en";
+const w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);let n;
+while((n=w.nextNode())){const k=n.nodeValue.trim();if(k&&k in TR_EN)n.nodeValue=n.nodeValue.replace(k,TR_EN[k])}
+document.querySelectorAll("[placeholder],[aria-label],[title]").forEach(e=>["placeholder","aria-label","title"].forEach(a=>{const v=e.getAttribute(a);if(v&&v in TR_EN)e.setAttribute(a,TR_EN[v])}))}
 const $=i=>document.getElementById(i);
-const MONTHS=["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"];
-const KIND={birthday:"Doğum günü",anniversary:"Yıl dönümü",other:"Diğer"};
-const MOODS=["Normal","Mutlu","Uykulu","Uyuyor","Üzgün","Şaşkın","Yukarı bakıyor","Kutlama","Sakin","Müzik","Gözleri kısık","Korkmuş","Gözleri sıkılı"];
-const ACCS=["Yok","Bayrak","Parti şapkası","Şemsiye"];
-const FXS=["Yok","Güneş gözlüğü","Ter","Bulut","Sis","Çisenti","Yağmur","Kar","Fırtına","Rüzgâr","Titreme","Yıldızlar","Gözyaşı","Konfeti"];
+const MONTHS=[T("Ocak"),T("Şubat"),T("Mart"),T("Nisan"),T("Mayıs"),T("Haziran"),T("Temmuz"),T("Ağustos"),T("Eylül"),T("Ekim"),T("Kasım"),T("Aralık")];
+const KIND={birthday:T("Doğum günü"),anniversary:T("Yıl dönümü"),other:T("Diğer")};
+const MOODS=["Normal",T("Mutlu"),T("Uykulu"),T("Uyuyor"),T("Üzgün"),T("Şaşkın"),T("Yukarı bakıyor"),T("Kutlama"),T("Sakin"),T("Müzik"),T("Gözleri kısık"),T("Korkmuş"),T("Gözleri sıkılı")];
+const ACCS=[T("Yok"),T("Bayrak"),T("Parti şapkası"),T("Şemsiye")];
+const FXS=[T("Yok"),T("Güneş gözlüğü"),T("Ter"),T("Bulut"),T("Sis"),T("Çisenti"),T("Yağmur"),T("Kar"),T("Fırtına"),T("Rüzgâr"),T("Titreme"),T("Yıldızlar"),T("Gözyaşı"),T("Konfeti")];
 const LEAGUES=[["tur.1","Süper Lig"],["eng.1","Premier Lig"],["esp.1","LaLiga"],["ita.1","Serie A"],["ger.1","Bundesliga"],["fra.1","Ligue 1"]];
 const TEAMS=[[436,"Fenerbahçe","FB","13235b","ffd60a",0],[432,"Galatasaray","GS","a6192e","fdb913",0],[1895,"Beşiktaş","BJK","111111","ffffff",0],[997,"Trabzonspor","TS","7a1c34","7fc6ef",0],[9078,"Alanyaspor","ALN","f58220","00843d",0],[132335,"Amedspor","AMD","008c45","d71920",0],[7914,"Başakşehir","İBFK","f26522","1b2a4a",0],[7656,"Çaykur Rizespor","RİZ","008c45","0057a8",0],[132334,"Çorum FK","COR","d71920","111111",0],[19267,"Erzurumspor","ERZ","0057a8","ffffff",0],[20729,"Eyüpspor","EYP","5b2c83","ffd200",0],[20070,"Gaziantep FK","GFK","d71920","111111",0],[996,"Gençlerbirliği","GNÇ","e30613","111111",0],[789,"Göztepe","GÖZ","ffcc00","e30613",0],[6870,"Kasımpaşa","KAS","1d2f6f","ffffff",0],[995,"Kocaelispor","KOC","00843d","111111",0],[7648,"Konyaspor","KON","00843d","ffffff",0],[11429,"Samsunspor","SAM","e30613","ffffff",0],[349,"AFC Bournemouth","BOU","f42727","b57edc",1],[359,"Arsenal","ARS","e20520","003399",1],[362,"Aston Villa","AVL","660e36","000000",1],[337,"Brentford","BRE","f42727","0f1c3f",1],[331,"Brighton & Hove Albion","BHA","0606fa","005f60",1],[363,"Chelsea","CHE","144992","ffffff",1],[388,"Coventry City","COV","87cced","ffffff",1],[384,"Crystal Palace","CRY","0202fb","000000",1],[368,"Everton","EVE","0606fa","ffffff",1],[370,"Fulham","FUL","ffffff","cc0000",1],[306,"Hull City","HUL","f28800","ffffff",1],[373,"Ipswich Town","IPS","0000fa","f5f2dc",1],[357,"Leeds United","LEE","ffffff","ffcd00",1],[364,"Liverpool","LIV","d11317","ffffff",1],[382,"Manchester City","MNC","99c5ea","000000",1],[360,"Manchester United","MAN","da020e","4169e1",1],[361,"Newcastle United","NEW","000000","0b1b3d",1],[393,"Nottingham Forest","NFO","c8102e","1b3624",1],[366,"Sunderland","SUN","eb172b","ffb6c1",1],[367,"Tottenham Hotspur","TOT","ffffff","0b1426",1],[96,"Alavés","ALA","0000ff","ffc0cb",2],[93,"Athletic Club","ATH","c8142f","000000",2],[1068,"Atlético Madrid","ATM","ca3624","000000",2],[83,"Barcelona","BAR","a50044","004d98",2],[85,"Celta Vigo","CEL","6cace4","004996",2],[90,"Deportivo","DEP","3366cc","000000",2],[3751,"Elche","ELC","288a00","4b2b67",2],[88,"Espanyol","ESP","3366cc","c8142f",2],[2922,"Getafe","GET","0000ff","7f1734",2],[1538,"Levante","LEV","c8142f","000000",2],[99,"Málaga","MCF","b9e8f0","d19ca4",2],[97,"Osasuna","OSA","cd0000","ffffff",2],[87,"Racing Santander","RAC","ffffff","3b6c1a",2],[101,"Rayo Vallecano","RAY","ffffff","cd0000",2],[244,"Real Betis","BET","288a00","0a422d",2],[86,"Real Madrid","RMA","ffffff","00529f",2],[89,"Real Sociedad","RSO","3366cc","000000",2],[243,"Sevilla","SEV","ffffff","d81022",2],[94,"Valencia","VAL","ffffff","ff6f00",2],[102,"Villarreal","VIL","ffff00","6cace4",2],[103,"AC Milan","MIL","e4002b","ffffff",3],[104,"AS Roma","ROMA","990a2c","f5f3e5",3],[105,"Atalanta","ATA","1157bf","ffffff",3],[107,"Bologna","BOL","04043d","ffffff",3],[2925,"Cagliari","CAG","282846","ffffff",3],[2572,"Como","COMO","4169e1","ffffff",3],[109,"Fiorentina","FIO","4c1d84","ffffff",3],[4057,"Frosinone","FRO","facf08","ffffff",3],[3263,"Genoa","GEN","08305d","ffffff",3],[110,"Internazionale","INT","00239c","ffffff",3],[111,"Juventus","JUV","111111","ffffff",3],[112,"Lazio","LAZ","74bde7","ffffff",3],[113,"Lecce","LEC","fced0b","08305d",3],[4007,"Monza","MON","c8142f","ffffff",3],[114,"Napoli","NAP","0677d2","ffffff",3],[115,"Parma","PAR","19161d","ffdd30",3],[3997,"Sassuolo","SAS","0fa653","adaeb0",3],[239,"Torino","TOR","9f0000","ffffff",3],[118,"Udinese","UDI","19161d","0f1c3f",3],[17530,"Venezia","VEN","000000","ffffff",3],[132,"Bayern Munich","MUN","dc052d","1a1a1a",4],[131,"Bayer Leverkusen","B04","da0308","f9fbfc",4],[124,"Borussia Dortmund","DOR","ffee00","272726",4],[268,"Borussia Mönchengladbach","BMG","ffffff","03915c",4],[125,"Eintracht Frankfurt","SGE","ffffff","272726",4],[3841,"FC Augsburg","FCA","ffffff","03915c",4],[122,"FC Cologne","KOE","ffffff","da0308",4],[127,"Hamburg SV","HSV","1a26af","1a1a1a",4],[2950,"Mainz","M05","da0308","000055",4],[11420,"RB Leipzig","RBL","ffffff","740c14",4],[133,"Schalke 04","S04","0000dd","ffffff",4],[126,"SC Freiburg","SCF","da0308","ffffff",4],[3307,"SC Paderborn 07","SCP","0000dd","ffffff",4],[10388,"SV Elversberg","ELV","000000","ffffff",4],[7911,"TSG Hoffenheim","TSG","003399","000055",4],[134,"VfB Stuttgart","VFB","ffffff","da0308",4],[137,"Werder Bremen","SVW","03915c","ffffff",4],[598,"1. FC Union Berlin","FCU","da0308","d4d4d4",4],[172,"AJ Auxerre","AUX","ffffff","1a1a1a",5],[7868,"Angers","ANG","1a1a1a","ffffff",5],[174,"AS Monaco","MON","e91514","004c37",5],[6997,"Brest","BRE","ef2f24","ffffff",5],[175,"Lens","RCL","e91514","004c37",5],[3236,"Le Havre AC","HAC","011f68","ededed",5],[2697,"Le Mans","MNS","2c323b","cfd6df",5],[166,"Lille","LILL","c2051b","e2d3d7",5],[273,"Lorient","LOR","f46100","1a1a1a",5],[167,"Lyon","LYON","ffffff","1a1a1a",5],[176,"Marseille","OLM","ffffff","011f68",5],[2502,"Nice","NICE","ef2f24","e2d3d7",5],[6851,"Paris FC","PAR","2c323b","cfd6df",5],[160,"Paris Saint-Germain","PSG","011f68","ffffff",5],[169,"Stade Rennais","REN","ef2f24","ffffff",5],[180,"Strasbourg","STR","0000bf","ffffff",5],[179,"Toulouse","TOU","560080","ffff00",5],[170,"Troyes","TRY","0000bf","fafafc",5]];
 const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{v==null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch(e){}}};
@@ -334,83 +344,84 @@ clearTimeout(tm);
 if(r.status===403&&path!=="/api/pair"){TOKEN="";store.set("rumy.token",null);show("pair");throw 0}
 return r
 }
-async function call(path,body){const r=await api(path,body);if(!r.ok){toast("Rumy kabul etmedi ("+r.status+")");throw 0}return r.json()}
+async function call(path,body){const r=await api(path,body);if(!r.ok){toast(T("Rumy kabul etmedi (")+r.status+")");throw 0}return r.json()}
 const hm=m=>String(Math.floor(m/60)).padStart(2,"0")+":"+String(m%60).padStart(2,"0");
 const mins=v=>{const p=(v||"0:0").split(":").map(Number);return p[0]*60+(p[1]||0)};
 function opt(sel,v,t){const o=document.createElement("option");o.value=v;o.textContent=t;sel.appendChild(o)}
 function range(el){el.style.setProperty("--p",(el.value-el.min)/(el.max-el.min)*100+"%")}
 function offline(on){
 $("offline").hidden=!on;$("menu").classList.toggle("dis",on);$("sleepBtn").hidden=on;
-if(on){$("heroEyes").className="eyes off";$("heroState").innerHTML='<span class="dot" style="background:var(--bad)"></span>Ulaşılamıyor';const l=store.get("rumy.seen");$("heroSub").textContent=l?"Son görülme "+new Date(+l).toLocaleTimeString("tr-TR",{hour:"2-digit",minute:"2-digit"}):location.host;if(view!=="main"&&view!=="pair")show("main")}
+if(on){$("heroEyes").className="eyes off";$("heroState").innerHTML=T('<span class="dot" style="background:var(--bad)"></span>Ulaşılamıyor');const l=store.get("rumy.seen");$("heroSub").textContent=l?T("Son görülme ")+new Date(+l).toLocaleTimeString(EN?"en-GB":"tr-TR",{hour:"2-digit",minute:"2-digit"}):location.host;if(view!=="main"&&view!=="pair")show("main")}
 }
-function upText(u){const d=Math.floor(u/86400),h=Math.floor(u%86400/3600),m=Math.floor(u%3600/60);return d?d+" g "+h+" sa":h?h+" sa "+m+" dk":m+" dk"}
+function upText(u){const d=Math.floor(u/86400),h=Math.floor(u%86400/3600),m=Math.floor(u%3600/60);return d?d+T(" g ")+h+T(" sa"):h?h+T(" sa ")+m+T(" dk"):m+T(" dk")}
 function lum(h){const v=[0,2,4].map(i=>{const c=parseInt(h.substr(i,2),16)/255;return c<=.03928?c/12.92:Math.pow((c+.055)/1.055,2.4)});return .2126*v[0]+.7152*v[1]+.0722*v[2]}
 function con(a,b){const x=lum(a),y=lum(b);return(Math.max(x,y)+.05)/(Math.min(x,y)+.05)}
 function ink(a,b){return con(a,b)>=3?b:con(a,"ffffff")>=con(a,"111111")?"ffffff":"111111"}
-function teamName(id){const t=TEAMS.find(x=>x[0]===id);return id?(t?t[1]:"Takım "+id):"Takım yok"}
+function teamName(id){const t=TEAMS.find(x=>x[0]===id);return id?(t?t[1]:T("Takım ")+id):T("Takım yok")}
 function fill(st){
-ST=st;const s=st.s;offline(false);store.set("rumy.seen",String(Date.now()));
+if(st.s&&st.s.lang!==undefined&&String(st.s.lang)!==LANG){try{localStorage.setItem("rumy.lang",String(st.s.lang))}catch(e){}location.reload();return}
+ST=st;const s=st.s;$("lang").value=LANG;offline(false);store.set("rumy.seen",String(Date.now()));
 $("heroEyes").className="eyes"+(st.sleep?" sleep":"");
-$("heroState").innerHTML=st.sleep?'<span class="dot" style="background:#5e5ce6"></span>Uyuyor':'<span class="dot"></span>Çevrimiçi';
-$("heroSub").textContent=st.sleep?"Uyanış "+hm(st.wake)+" · dokununca kısa süre açılır":location.host+" · v"+st.v+" · "+upText(st.up)+" açık";
-$("sleepBtn").innerHTML=st.sleep?'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>Uyandır':'<svg viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>Şimdi uyut · uyanış '+hm(s.nend);
+$("heroState").innerHTML=st.sleep?T('<span class="dot" style="background:#5e5ce6"></span>Uyuyor'):T('<span class="dot"></span>Çevrimiçi');
+$("heroSub").textContent=st.sleep?T("Uyanış ")+hm(st.wake)+T(" · dokununca kısa süre açılır"):location.host+" · v"+st.v+" · "+upText(st.up)+T(" açık");
+$("sleepBtn").innerHTML=st.sleep?T('<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>Uyandır'):T('<svg viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>Şimdi uyut · uyanış ')+hm(s.nend);
 $("mGenel").textContent=s.city;
-$("mEkran").textContent="%"+s.bri+(s.nmode==2?" · gece "+hm(s.nstart):s.nmode==1?" · gün batımı":"");
-$("mFutbol").textContent=s.fut===0?"Kapalı":teamName(s.team);
-$("mIsik").textContent=s.bmac?(s.bname||"Ampul")+" · uyarı "+(s.wagent?"açık":"kapalı"):"Eşleşmedi";
-$("mYazici").textContent=s.phost?"K2 · "+s.phost:"Kapalı";
-$("mGunler").textContent=(st.ev||[]).length+" gün";
+$("mEkran").textContent=pct(s.bri)+(s.nmode==2?T(" · gece ")+hm(s.nstart):s.nmode==1?T(" · gün batımı"):"");
+$("mFutbol").textContent=s.fut===0?T("Kapalı"):teamName(s.team);
+$("mIsik").textContent=s.bmac?(s.bname||T("Ampul"))+T(" · uyarı ")+(s.wagent?T("açık"):T("kapalı")):T("Eşleşmedi");
+$("mYazici").textContent=s.phost?"K2 · "+s.phost:T("Kapalı");
+$("mGunler").textContent=(st.ev||[]).length+T(" gün");
 drawLook(st.look);
 if(document.activeElement&&document.activeElement.tagName==="INPUT"&&document.activeElement.type!=="checkbox"&&document.activeElement.type!=="range")return;
 $("name").value=s.name;$("qmag").value=s.qmag;
 const p=prov.find(x=>x[0]===s.prov&&x[1]===s.city);
 $("custom").checked=!p;$("customBox").hidden=!!p;$("prov").value=p?p[0]:"";
 $("city").value=s.city;$("lat").value=s.lat;$("lon").value=s.lon;
-$("bri").value=s.bri;$("briV").textContent="%"+s.bri;range($("bri"));
-$("nbri").value=s.nbri;$("nbriV").textContent="%"+s.nbri;range($("nbri"));
+$("bri").value=s.bri;$("briV").textContent=pct(s.bri);range($("bri"));
+$("nbri").value=s.nbri;$("nbriV").textContent=pct(s.nbri);range($("nbri"));
 $("home").value=s.home;$("card").value=s.card;$("esleep").value=s.esleep;
 document.querySelectorAll("[name=nmode]").forEach(r=>r.checked=+r.value===s.nmode);$("hours").hidden=s.nmode!==2;
 $("nstart").value=hm(s.nstart);$("nend").value=hm(s.nend);
 $("gsl").checked=!!s.gsl;$("gucl").checked=!!s.gucl;drawTeams();
-$("bname").value=s.bname;$("bmac").textContent=s.bmac?s.bmac.match(/../g).join(":"):"Eşleşmedi";
-$("bstate").innerHTML=!s.bmac?"—":st.bulb.online?'<span class="dot"></span>Çevrimiçi · '+(st.bulb.on?"açık":"kapalı"):'<span class="dot" style="background:var(--bad)"></span>Ulaşılamıyor';
+$("bname").value=s.bname;$("bmac").textContent=s.bmac?s.bmac.match(/../g).join(":"):T("Eşleşmedi");
+$("bstate").innerHTML=!s.bmac?"—":st.bulb.online?T('<span class="dot"></span>Çevrimiçi · ')+(st.bulb.on?T("açık"):T("kapalı")):T('<span class="dot" style="background:var(--bad)"></span>Ulaşılamıyor');
 $("wagent").checked=!!s.wagent;$("wgoal").checked=!!s.wgoal;$("wonly").checked=!!s.wonly;
 $("phost").value=s.phost||"";$("maint").checked=!!s.maint;
 evs=st.ev||[];drawEvs();
-$("sys").innerHTML="";[["Sürüm",st.v+" · "+st.panel],["Çalışma",upText(st.up)+" · açılış #"+st.boots],["Bellek",Math.round(st.heap/1024)+" KB boş (en düşük "+Math.round(st.minHeap/1024)+" KB)"],["WiFi",st.rssi+" dBm · "+st.ip],["SD kart",st.sd?"takılı":"yok"],["Eşli telefon",st.phones]].forEach(r=>{const d=document.createElement("div");const b=document.createElement("b");b.textContent=r[0]+": ";d.appendChild(b);d.appendChild(document.createTextNode(r[1]));$("sys").appendChild(d)});
+$("sys").innerHTML="";[[T("Sürüm"),st.v+" · "+st.panel],[T("Çalışma"),upText(st.up)+T(" · açılış #")+st.boots],[T("Bellek"),Math.round(st.heap/1024)+T(" KB boş (en düşük ")+Math.round(st.minHeap/1024)+" KB)"],["WiFi",st.rssi+" dBm · "+st.ip],[T("SD kart"),st.sd?T("takılı"):T("yok")],[T("Eşli telefon"),st.phones]].forEach(r=>{const d=document.createElement("div");const b=document.createElement("b");b.textContent=r[0]+": ";d.appendChild(b);d.appendChild(document.createTextNode(r[1]));$("sys").appendChild(d)});
 }
 async function load(){try{fill(await call("/api/state"))}catch(e){}}
 function save(patch){Object.assign(pend,patch);clearTimeout(timer);timer=setTimeout(flush,500)}
-async function flush(){const b=pend;pend={};if(!Object.keys(b).length)return;try{await call("/api/settings",b);toast("Kaydedildi",1);load()}catch(e){}}
+async function flush(){const b=pend;pend={};if(!Object.keys(b).length)return;try{await call("/api/settings",b);toast(T("Kaydedildi"),1);load()}catch(e){}}
 function sprite(el,m){el.style.backgroundPosition=(m*100/12)+"% 0"}
 function lookText(l){return [MOODS[l.m]||"?"].concat(l.a?[ACCS[l.a]]:[],l.f?[FXS[l.f]]:[]).join(" · ")}
 function drawLook(l){
 if(!l)return;
 const mine=!!l.mine;
-$("mGorunum").textContent=mine?"Senin seçimin":"Otomatik";
+$("mGorunum").textContent=mine?T("Senin seçimin"):T("Otomatik");
 sprite($("lkSpr"),l.m);
-$("lkTag").textContent=mine?"Senin seçimin":"Otomatik";$("lkTag").className="tag"+(mine?" mine":"");
+$("lkTag").textContent=mine?T("Senin seçimin"):T("Otomatik");$("lkTag").className="tag"+(mine?" mine":"");
 $("lkName").textContent=lookText(l);
-$("lkSub").textContent=mine?"Rumy'nin hâli bir dahaki değişişinde kendiliğinden otomatiğe döner.":"Bir görünüm seç; Rumy hemen uygular.";
+$("lkSub").textContent=mine?T("Rumy'nin hâli bir dahaki değişişinde kendiliğinden otomatiğe döner."):T("Bir görünüm seç; Rumy hemen uygular.");
 $("lkAuto").hidden=!mine;
 const box=$("lkMoods");box.innerHTML="";
 MOODS.forEach((n,i)=>{const b=document.createElement("button");b.className=mine&&l.m===i?"on":"";const sp=document.createElement("i");sp.className="spr";sprite(sp,i);b.append(sp,document.createTextNode(n));b.onclick=()=>applyLook({mood:i,acc:l.a,fx:l.f});box.appendChild(b)});
 [[ "lkAcc",ACCS,"a","acc"],["lkFx",FXS,"f","fx"]].forEach(([id,list,key,field])=>{const c=$(id);c.innerHTML="";list.forEach((n,i)=>{const b=document.createElement("button");b.textContent=n;b.className=mine&&l[key]===i?"on":"";b.onclick=()=>{const q={mood:l.m,acc:l.a,fx:l.f};q[field]=i;applyLook(q)};c.appendChild(b)})});
 }
-async function applyLook(body){try{await call("/api/look",body);toast(body.auto?"Otomatiğe döndü":"Rumy'ye uygulandı",1);setTimeout(load,1300)}catch(e){}}
+async function applyLook(body){try{await call("/api/look",body);toast(body.auto?T("Otomatiğe döndü"):T("Rumy'ye uygulandı"),1);setTimeout(load,1300)}catch(e){}}
 function drawTeams(){
 const cur=ST?ST.s.team:0,on=!ST||ST.s.fut!==0,mine=TEAMS.find(t=>t[0]===cur);
 $("fut").checked=on;$("futBox").hidden=!on;$("futOff").hidden=on;
 if(lg<0)lg=mine?mine[5]:0;
 const ch=$("leagues");ch.innerHTML="";
-LEAGUES.forEach((x,i)=>{const b=document.createElement("button");b.textContent=x[1];b.className=i===lg?"on":"";b.onclick=()=>{lg=i;drawTeams()};ch.appendChild(b)});
+LEAGUES.forEach((x,i)=>{const b=document.createElement("button");b.textContent=T(x[1]);b.className=i===lg?"on":"";b.onclick=()=>{lg=i;drawTeams()};ch.appendChild(b)});
 const box=$("teams");box.innerHTML="";
-const list=TEAMS.filter(t=>t[5]===lg);if(cur&&!mine&&lg===0)list.unshift([cur,"Takım "+cur,"?","2c323b","cfd6df",0]);
-list.concat([[0,"Takımım yok",""]]).forEach(t=>{
+const list=TEAMS.filter(t=>t[5]===lg);if(cur&&!mine&&lg===0)list.unshift([cur,T("Takım ")+cur,"?","2c323b","cfd6df",0]);
+list.concat([[0,T("Takımım yok"),""]]).forEach(t=>{
 const b=document.createElement("button");b.className="row";
 if(t[0]){const g=document.createElement("span");g.className="badge";g.textContent=t[2];g.style.background="#"+t[3];g.style.color="#"+ink(t[3],t[4]);b.appendChild(g)}
 const l=document.createElement("span");l.className="lbl";l.textContent=t[1];
-if(!t[0]){const d=document.createElement("div");d.className="sub";d.textContent="Yalnızca diğer maçların golleri";l.appendChild(d)}
+if(!t[0]){const d=document.createElement("div");d.className="sub";d.textContent=T("Yalnızca diğer maçların golleri");l.appendChild(d)}
 b.appendChild(l);
 if(t[0]===cur){const c=document.createElement("span");c.className="check";c.textContent="✓";b.appendChild(c)}
 b.onclick=()=>{if(ST)ST.s.team=t[0];drawTeams();save(t[0]?{team:t[0],tc1:t[3],tc2:t[4]}:{team:0})};box.appendChild(b)});
@@ -422,16 +433,16 @@ const d=document.createElement("span");d.className="date";d.innerHTML="<b></b><s
 const l=document.createElement("span");l.className="lbl";l.textContent=e.name;const s=document.createElement("div");s.className="sub";s.textContent=KIND[e.type]+(e.year?" · "+e.year:"");l.appendChild(s);
 const c=document.createElement("span");c.className="chev";c.textContent="›";
 b.append(d,l,c);b.onclick=()=>editEv(i);box.appendChild(b)});
-if(!evs.length){const d=document.createElement("div");d.className="row";d.innerHTML='<span class="lbl sub">Henüz gün eklenmedi.</span>';box.appendChild(d)}
+if(!evs.length){const d=document.createElement("div");d.className="row";d.innerHTML=T('<span class="lbl sub">Henüz gün eklenmedi.</span>');box.appendChild(d)}
 }
 function editEv(i){evIdx=i;const e=i<0?{name:"",day:1,month:1,year:0,type:"birthday"}:evs[i];
-$("evTitle").textContent=i<0?"Yeni gün":"Gün";$("evName").value=e.name;$("evDay").value=e.day;$("evMonth").value=e.month;$("evYear").value=e.year||"";$("evType").value=e.type;$("evDel").hidden=i<0;show("gun")}
+$("evTitle").textContent=i<0?T("Yeni gün"):T("Gün");$("evName").value=e.name;$("evDay").value=e.day;$("evMonth").value=e.month;$("evYear").value=e.year||"";$("evType").value=e.type;$("evDel").hidden=i<0;show("gun")}
 async function saveEvs(list,msg){try{await call("/api/events",list);evs=list;drawEvs();toast(msg,1);show("gunler");load()}catch(e){}}
 async function pair(code){
-$("pairMsg").textContent="Bağlanıyor…";
-let r;try{r=await api("/api/pair",{code})}catch(e){$("pairMsg").textContent="Rumy'ye ulaşılamadı. Aynı WiFi'de misin?";resetCode();return}
-if(r.ok){const j=await r.json();TOKEN=j.token;store.set("rumy.token",TOKEN);toast("Eşleşti",1);show("main");load();return}
-$("pairMsg").textContent=r.status===409?"Önce Rumy'de Ayarlar → Telefon ekranını aç.":r.status===429?"Çok fazla deneme. 1 dakika bekle.":"Kod yanlış, tekrar dene.";resetCode()}
+$("pairMsg").textContent=T("Bağlanıyor…");
+let r;try{r=await api("/api/pair",{code})}catch(e){$("pairMsg").textContent=T("Rumy'ye ulaşılamadı. Aynı WiFi'de misin?");resetCode();return}
+if(r.ok){const j=await r.json();TOKEN=j.token;store.set("rumy.token",TOKEN);toast(T("Eşleşti"),1);show("main");load();return}
+$("pairMsg").textContent=r.status===409?T("Önce Rumy'de Ayarlar → Telefon ekranını aç."):r.status===429?T("Çok fazla deneme. 1 dakika bekle."):T("Kod yanlış, tekrar dene.");resetCode()}
 function resetCode(){$("codeIn").value="";drawCode()}
 function drawCode(){const v=$("codeIn").value;[...$("codeBox").children].slice(0,4).forEach((s,i)=>{s.textContent=v[i]||"";s.className=i===v.length?"cur":""})}
 $("codeIn").oninput=()=>{const i=$("codeIn");i.value=i.value.replace(/\D/g,"").slice(0,4);drawCode();if(i.value.length===4)pair(i.value)};
@@ -441,34 +452,35 @@ document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>show(b.dataset.g
 document.querySelectorAll("[data-back]").forEach(b=>b.onclick=()=>{show(b.dataset.back||"main");if(!b.dataset.back)load()});
 $("retry").onclick=load;
 $("lkAuto").onclick=()=>applyLook({auto:true});
-$("sleepBtn").onclick=async()=>{if(!ST)return;const on=!ST.sleep;try{await call("/api/sleep",{on});toast(on?"Rumy uyudu":"Rumy uyandı",1);load()}catch(e){}};
+$("sleepBtn").onclick=async()=>{if(!ST)return;const on=!ST.sleep;try{await call("/api/sleep",{on});toast(on?T("Rumy uyudu"):T("Rumy uyandı"),1);load()}catch(e){}};
+$("lang").onchange=()=>{const v=$("lang").value;try{localStorage.setItem("rumy.lang",v)}catch(e){}save({lang:+v});toast(T("Yeniden başlatılıyor…"),1);setTimeout(()=>location.reload(),9000)};
 $("name").onchange=()=>save({name:$("name").value.trim()});
 $("qmag").onchange=()=>save({qmag:+$("qmag").value});
 $("prov").onchange=()=>{const p=prov.find(x=>String(x[0])===$("prov").value);if(p)save({prov:p[0],city:p[1],lat:p[2],lon:p[3]})};
 $("custom").onchange=()=>{$("customBox").hidden=!$("custom").checked;if(!$("custom").checked)$("prov").onchange()};
-$("saveLoc").onclick=()=>{const lat=parseFloat($("lat").value.replace(",",".")),lon=parseFloat($("lon").value.replace(",","."));if(!$("city").value.trim()||isNaN(lat)||isNaN(lon)||lat<-90||lat>90||lon<-180||lon>180){toast("Yer adı ve geçerli koordinat gir");return}save({city:$("city").value.trim(),lat,lon,prov:0})};
-["bri","nbri"].forEach(id=>{const el=$(id);el.oninput=()=>{$(id+"V").textContent="%"+el.value;range(el)};el.onchange=()=>save({[id]:+el.value})});
+$("saveLoc").onclick=()=>{const lat=parseFloat($("lat").value.replace(",",".")),lon=parseFloat($("lon").value.replace(",","."));if(!$("city").value.trim()||isNaN(lat)||isNaN(lon)||lat<-90||lat>90||lon<-180||lon>180){toast(T("Yer adı ve geçerli koordinat gir"));return}save({city:$("city").value.trim(),lat,lon,prov:0})};
+["bri","nbri"].forEach(id=>{const el=$(id);el.oninput=()=>{$(id+"V").textContent=pct(el.value);range(el)};el.onchange=()=>save({[id]:+el.value})});
 ["home","card","esleep"].forEach(id=>$(id).onchange=()=>save({[id]:+$(id).value}));
 document.querySelectorAll("[name=nmode]").forEach(r=>r.onchange=()=>{$("hours").hidden=r.value!=="2";save({nmode:+r.value})});
 ["nstart","nend"].forEach(id=>$(id).onchange=()=>{if($(id).value)save({[id]:mins($(id).value)})});
 ["gsl","gucl","wagent","wgoal","wonly","maint"].forEach(id=>$(id).onchange=()=>save({[id]:$(id).checked?1:0}));
 $("fut").onchange=()=>{const v=$("fut").checked?1:0;if(ST)ST.s.fut=v;drawTeams();save({fut:v})};
 $("bname").onchange=()=>save({bname:$("bname").value.trim()});
-$("phost").onchange=()=>{const v=$("phost").value.trim();if(v&&!/^((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)\.){3}(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)$/.test(v)){toast("Adres geçersiz (ör. 192.168.1.50)");return}save({phost:v})};
+$("phost").onchange=()=>{const v=$("phost").value.trim();if(v&&!/^((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)\.){3}(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)$/.test(v)){toast(T("Adres geçersiz (ör. 192.168.1.50)"));return}save({phost:v})};
 for(let d=1;d<=31;d++)opt($("evDay"),d,d);MONTHS.forEach((m,k)=>opt($("evMonth"),k+1,m));
-$("evAdd").onclick=()=>{if(evs.length>=24){toast("En fazla 24 gün eklenebilir");return}editEv(-1)};
+$("evAdd").onclick=()=>{if(evs.length>=24){toast(T("En fazla 24 gün eklenebilir"));return}editEv(-1)};
 $("evSave").onclick=()=>{const e={name:$("evName").value.trim(),day:+$("evDay").value,month:+$("evMonth").value,year:+$("evYear").value||0,type:$("evType").value};
-if(!e.name){toast("Bir ad yaz");return}if(e.year&&(e.year<1900||e.year>2199)){toast("Yıl 1900–2199 arası olmalı");return}
-const list=evs.slice();if(evIdx<0)list.push(e);else list[evIdx]=e;saveEvs(list,"Kaydedildi")};
-$("evDel").onclick=()=>{if(evIdx<0||!confirm("Bu gün silinsin mi?"))return;const list=evs.slice();list.splice(evIdx,1);saveEvs(list,"Silindi")};
-$("refresh").onclick=async()=>{try{await call("/api/refresh",{});toast("Veriler yenileniyor",1)}catch(e){}};
-$("reboot").onclick=async()=>{if(!confirm("Rumy yeniden başlatılsın mı?"))return;try{await call("/api/reboot",{});toast("Yeniden başlatılıyor…",1)}catch(e){}};
-$("unpair").onclick=()=>{if(!confirm("Bu cihaz Rumy'den çıkarılsın mı? Yeniden bağlanmak için Rumy'deki kod gerekir."))return;TOKEN="";store.set("rumy.token",null);resetCode();show("pair")};
+if(!e.name){toast(T("Bir ad yaz"));return}if(e.year&&(e.year<1900||e.year>2199)){toast(T("Yıl 1900–2199 arası olmalı"));return}
+const list=evs.slice();if(evIdx<0)list.push(e);else list[evIdx]=e;saveEvs(list,T("Kaydedildi"))};
+$("evDel").onclick=()=>{if(evIdx<0||!confirm(T("Bu gün silinsin mi?")))return;const list=evs.slice();list.splice(evIdx,1);saveEvs(list,T("Silindi"))};
+$("refresh").onclick=async()=>{try{await call("/api/refresh",{});toast(T("Veriler yenileniyor"),1)}catch(e){}};
+$("reboot").onclick=async()=>{if(!confirm(T("Rumy yeniden başlatılsın mı?")))return;try{await call("/api/reboot",{});toast(T("Yeniden başlatılıyor…"),1)}catch(e){}};
+$("unpair").onclick=()=>{if(!confirm(T("Bu cihaz Rumy'den çıkarılsın mı? Yeniden bağlanmak için Rumy'deki kod gerekir.")))return;TOKEN="";store.set("rumy.token",null);resetCode();show("pair")};
 document.addEventListener("visibilitychange",()=>{if(!document.hidden&&TOKEN)load()});
 setInterval(()=>{if(!document.hidden&&TOKEN&&(view==="main"||view==="gorunum"||wide.matches))load()},15000);
 (async()=>{
 try{prov=await (await fetch("/api/provinces")).json()}catch(e){prov=[]}
-const sel=$("prov");opt(sel,"","Özel");prov.forEach(p=>opt(sel,p[0],p[1]));
+const sel=$("prov");opt(sel,"",T("Özel"));prov.forEach(p=>opt(sel,p[0],p[1]));
 if(TOKEN){show("main");load()}else{show("pair");drawCode()}
 })();
 </script>

@@ -6,6 +6,7 @@
 #include "screens.h"
 #include "theme.h"
 #include "ui.h"
+#include "text_tr.h"
 
 namespace scr_touchcal {
 
@@ -75,7 +76,7 @@ void finish(bool ok) {
   lv_obj_add_flag(s_hline, LV_OBJ_FLAG_HIDDEN);
   lv_obj_add_flag(s_vline, LV_OBJ_FLAG_HIDDEN);
   lv_obj_align(s_text, LV_ALIGN_CENTER, 0, 0);
-  lv_label_set_text(s_text, ok ? "Dokunmatik ayarı kaydedildi" : "Değişiklik yapılmadı");
+  lv_label_set_text(s_text, ok ? rc::L("Dokunmatik ayarı kaydedildi", "Touch calibration saved") : rc::L("Değişiklik yapılmadı", "No changes made"));
 }
 
 void pointDone() {
@@ -84,17 +85,17 @@ void pointDone() {
   if (s_idx < POINTS - 2) {
     s_idx++;
     placeTarget();
-    setMessage("Artının tam ortasına dokunup kaldır");
+    setMessage(rc::L("Artının tam ortasına dokunup kaldır", "Tap the exact center of the cross and lift"));
     return;
   }
   if (s_idx == POINTS - 2) {
     if (!display::calibrateTouch(kTx, kTy, s_rx, s_ry)) {
-      restart("Dokunuşlar tutarsız çıktı, baştan alalım");
+      restart(rc::L("Dokunuşlar tutarsız çıktı, baştan alalım", "Taps were inconsistent, let's start over"));
       return;
     }
     s_idx++;
     placeTarget();
-    setMessage("Son olarak ortadaki artıya dokun");
+    setMessage(rc::L("Son olarak ortadaki artıya dokun", "Finally, tap the cross in the middle"));
     return;
   }
   int32_t x = 0, y = 0;
@@ -103,7 +104,7 @@ void pointDone() {
     display::keepTouchCal(true);
     finish(true);
   } else {
-    restart("Sağlama tutmadı, baştan alalım");
+    restart(rc::L("Sağlama tutmadı, baştan alalım", "Check failed, let's start over"));
   }
 }
 
@@ -180,8 +181,8 @@ lv_obj_t* create() {
   s_idleSince = millis();
   resetSamples();
   placeTarget();
-  setMessage(display::touchCalSupported() ? "Dokunmatik ayarı: artının tam ortasına dokunup kaldır"
-                                          : "Dokunmatik bulunamadı");
+  setMessage(display::touchCalSupported() ? rc::L("Dokunmatik ayarı: artının tam ortasına dokunup kaldır", "Touch calibration: tap the exact center of the cross and lift")
+                                          : rc::L("Dokunmatik bulunamadı", "Touch not found"));
   s_timer = lv_timer_create(tick, TICK_MS, nullptr);
   return s_scr;
 }

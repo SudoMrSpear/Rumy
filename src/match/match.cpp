@@ -17,6 +17,7 @@
 #include "ui/match_ui.h"
 #include "net/net.h"
 #include "settings/settings.h"
+#include "text_tr.h"
 
 namespace match {
 
@@ -300,7 +301,7 @@ void demoBase(uint32_t now, bool pre) {
   s_m.league = rc::ML_UCL;
   s_m.home.id = s_m.teamId;
   bool fb = s_m.teamId == 436;
-  snprintf(s_m.home.name, sizeof(s_m.home.name), "%s", fb ? "Fenerbahçe" : "Takımım");
+  snprintf(s_m.home.name, sizeof(s_m.home.name), "%s", fb ? "Fenerbahçe" : rc::L("Takımım", "My team"));
   snprintf(s_m.home.abbr, sizeof(s_m.home.abbr), "%s", fb ? "FB" : "TKM");
   s_m.away.id = 362;
   snprintf(s_m.away.name, sizeof(s_m.away.name), "Aston Villa");

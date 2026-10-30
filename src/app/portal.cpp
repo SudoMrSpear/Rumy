@@ -12,6 +12,7 @@
 #include "portal_font.h"
 #include "settings/provinces.h"
 #include "settings/settings.h"
+#include "text_tr.h"
 
 namespace portal {
 
@@ -26,14 +27,14 @@ void onDisconnect(arduino_event_id_t, arduino_event_info_t info) { s_reason = in
 
 const char* reasonText(uint8_t r) {
   switch (r) {
-    case WIFI_REASON_NO_AP_FOUND: return "Ağ bulunamadı (2.4 GHz olmalı)";
+    case WIFI_REASON_NO_AP_FOUND: return rc::L("Ağ bulunamadı (2.4 GHz olmalı)", "Network not found (must be 2.4 GHz)");
     case WIFI_REASON_AUTH_EXPIRE:
     case WIFI_REASON_AUTH_FAIL:
     case WIFI_REASON_4WAY_HANDSHAKE_TIMEOUT:
     case WIFI_REASON_HANDSHAKE_TIMEOUT:
-    case WIFI_REASON_MIC_FAILURE: return "Şifre yanlış olabilir";
-    case 0: return "Kurulum tamamlanmadı";
-    default: return "Bağlanamadı, tekrar dene";
+    case WIFI_REASON_MIC_FAILURE: return rc::L("Şifre yanlış olabilir", "Password may be wrong");
+    case 0: return rc::L("Kurulum tamamlanmadı", "Setup not completed");
+    default: return rc::L("Bağlanamadı, tekrar dene", "Couldn't connect, try again");
   }
 }
 
@@ -59,23 +60,23 @@ void draw(const char* status, uint16_t statusColor) {
   g.print("Rumy");
   g.setTextColor(rgb(154, 165, 180), C_BG);
   g.setCursor(102, 38);
-  g.print("İlk kurulum");
+  g.print(rc::L("İlk kurulum", "First setup"));
   g.setTextColor(rgb(242, 245, 249), C_BG);
   g.setCursor(10, 66);
-  g.print("1. Telefonla \"Rumy-Kurulum\"");
+  g.print(rc::L("1. Telefonla \"Rumy-Kurulum\"", "1. On your phone, join"));
   g.setCursor(26, 86);
-  g.print("ağına bağlan (QR)");
+  g.print(rc::L("ağına bağlan (QR)", "\"Rumy-Kurulum\" (or scan QR)"));
   g.setCursor(10, 110);
-  g.print("2. Açılan sayfada ev");
+  g.print(rc::L("2. Açılan sayfada ev", "2. On the page that opens,"));
   g.setCursor(26, 130);
-  g.print("WiFi'ni seç");
+  g.print(rc::L("WiFi'ni seç", "pick your home WiFi"));
   g.setCursor(10, 154);
-  g.print("3. Adını ve şehrini yaz,");
+  g.print(rc::L("3. Adını ve şehrini yaz,", "3. Enter your name and city,"));
   g.setCursor(26, 174);
-  g.print("Kaydet'e bas");
+  g.print(rc::L("Kaydet'e bas", "then tap Save"));
   g.setTextColor(rgb(94, 105, 120), C_BG);
   g.setCursor(10, 198);
-  g.print("Sayfa açılmazsa: 192.168.4.1");
+  g.print(rc::L("Sayfa açılmazsa: 192.168.4.1", "If no page opens: 192.168.4.1"));
   g.setTextColor(statusColor, C_BG);
   g.setCursor(10, 220);
   g.print(status);
@@ -105,7 +106,7 @@ void run() {
   display::begin(cfg::TP_DEFAULT_ROTATION);
   display::setFlip(settings::get().flip);
   display::setBrightnessPct(70);
-  draw("Kurulum bekleniyor…", rgb(25, 211, 240));
+  draw(rc::L("Kurulum bekleniyor…", "Waiting for setup…"), rgb(25, 211, 240));
   diag::note("portal", "WiFi kurulumu: %s agina baglanin", cfg::PORTAL_AP);
 
   char* datalist = buildDatalist();
@@ -127,8 +128,8 @@ void run() {
     wm.setCountry("TR");
     std::vector<const char*> menu = {"wifi", "exit"};
     wm.setMenu(menu);
-    WiFiManagerParameter pName("rname", "Adın", cur.name, 23, "autocomplete='given-name'");
-    WiFiManagerParameter pCity("rcity", "Şehir (il)", cur.city, 31, "list='iller' autocomplete='off'");
+    WiFiManagerParameter pName("rname", rc::L("Adın", "Your name"), cur.name, 23, "autocomplete='given-name'");
+    WiFiManagerParameter pCity("rcity", rc::L("Şehir (il)", "City (province)"), cur.city, 31, "list='iller' autocomplete='off'");
     WiFiManagerParameter pList(datalist ? datalist : "");
     wm.addParameter(&pName);
     wm.addParameter(&pCity);
@@ -151,7 +152,7 @@ void run() {
     if (ok && WiFi.status() == WL_CONNECTED) {
       s.wifiConfigured = 1;
       settings::set(s);
-      draw("Bağlandı! Yeniden başlatılıyor…", rgb(61, 220, 132));
+      draw(rc::L("Bağlandı! Yeniden başlatılıyor…", "Connected! Restarting…"), rgb(61, 220, 132));
       diag::note("portal", "kurulum tamam");
       free(datalist);
       vTaskDelay(pdMS_TO_TICKS(1200));

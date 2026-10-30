@@ -17,6 +17,7 @@
 #include "net/relay.h"
 #include "media_proto.h"
 #include "settings/settings.h"
+#include "text_tr.h"
 
 namespace media {
 
@@ -389,7 +390,7 @@ void photoLoop() {
 void plLoop() {
   if (s_pl.pick >= 0 && s_pl.pickResult == rc::PLR_STARTING && millis() - s_pl.pickAt > cfg::MEDIA_PL_START_MS) {
     s_pl.pickResult = rc::PLR_FAIL;
-    copyField(s_pl.pickMsg, sizeof(s_pl.pickMsg), "Bilgisayardan yanıt gelmedi");
+    copyField(s_pl.pickMsg, sizeof(s_pl.pickMsg), rc::L("Bilgisayardan yanıt gelmedi", "No reply from the computer"));
     s_ver++;
   }
   needSheets();

@@ -85,7 +85,7 @@ void drawToast(lv_event_t* ev) {
   char title[64];
   if (e.kind == rc::MK_SUB) {
     drawIcon(layer, e, ix, c.y1 + S(6), S(20));
-    snprintf(title, sizeof(title), "Oyuncu değişikliği · %s", e.minute);
+    snprintf(title, sizeof(title), rc::L("Oyuncu değişikliği · %s", "Substitution · %s"), e.minute);
     du::text(layer, fs, C(theme::C_TEXT2), LV_TEXT_ALIGN_LEFT, tx, c.y1 + S(5), r, title);
     du::text(layer, fm, C(theme::C_NEON_GREEN), LV_TEXT_ALIGN_LEFT, tx, c.y1 + S(21), tx + S(16), "\xE2\x86\x91");
     du::text(layer, fm, teamCol, LV_TEXT_ALIGN_RIGHT, tx, c.y1 + S(21), r, team.abbr);
@@ -102,13 +102,13 @@ void drawToast(lv_event_t* ev) {
   }
   drawIcon(layer, e, ix, c.y1 + S(8), S(22));
   bool goal = isGoal(e.kind);
-  if (e.kind == rc::MK_OWN_GOAL) snprintf(title, sizeof(title), "Kendi kalesine gol · %s", e.minute);
-  else if (e.kind == rc::MK_PEN_GOAL) snprintf(title, sizeof(title), "%s penaltı golü · %s", team.name, e.minute);
-  else if (goal) snprintf(title, sizeof(title), "%s golü · %s", team.name, e.minute);
-  else if (e.kind == rc::MK_RED) snprintf(title, sizeof(title), "Kırmızı kart · %s", e.minute);
-  else snprintf(title, sizeof(title), "Sarı kart · %s", e.minute);
+  if (e.kind == rc::MK_OWN_GOAL) snprintf(title, sizeof(title), rc::L("Kendi kalesine gol · %s", "Own goal · %s"), e.minute);
+  else if (e.kind == rc::MK_PEN_GOAL) snprintf(title, sizeof(title), rc::L("%s penaltı golü · %s", "%s penalty goal · %s"), team.name, e.minute);
+  else if (goal) snprintf(title, sizeof(title), rc::L("%s golü · %s", "%s goal · %s"), team.name, e.minute);
+  else if (e.kind == rc::MK_RED) snprintf(title, sizeof(title), rc::L("Kırmızı kart · %s", "Red card · %s"), e.minute);
+  else snprintf(title, sizeof(title), rc::L("Sarı kart · %s", "Yellow card · %s"), e.minute);
   char fitted[72];
-  const char* tail = strstr(title, goal && e.kind != rc::MK_OWN_GOAL ? (e.kind == rc::MK_PEN_GOAL ? " penaltı golü" : " golü") : " · ");
+  const char* tail = strstr(title, goal && e.kind != rc::MK_OWN_GOAL ? (e.kind == rc::MK_PEN_GOAL ? rc::L(" penaltı golü", " penalty goal") : rc::L(" golü", " goal")) : " · ");
   du::text(layer, fm, C(theme::C_TEXT), LV_TEXT_ALIGN_LEFT, tx, c.y1 + S(8), r,
            du::fit(fm, title, r - tx, fitted, sizeof(fitted), 0, tail ? static_cast<size_t>(tail - title) : SIZE_MAX));
   char right[24];
@@ -139,10 +139,10 @@ void drawNote(lv_event_t* ev) {
   int32_t tx = c.x1 + S(40);
   int32_t r = c.x2 - S(12);
   drawLeague(layer, m.league, c.x1 + S(11), c.y1 + S(8), S(22), C(theme::team()));
-  const char* title = s_noteShown == N_KICKOFF ? "Maç başladı"
-                      : s_noteShown == N_HALF  ? "İlk yarı bitti"
-                      : s_noteShown == N_CANCEL ? "Gol iptal edildi"
-                                                : "Maç bitti";
+  const char* title = s_noteShown == N_KICKOFF ? rc::L("Maç başladı", "Kick-off")
+                      : s_noteShown == N_HALF  ? rc::L("İlk yarı bitti", "Half-time")
+                      : s_noteShown == N_CANCEL ? rc::L("Gol iptal edildi", "Goal disallowed")
+                                                : rc::L("Maç bitti", "Full time");
   du::text(layer, fm, C(theme::C_TEXT), LV_TEXT_ALIGN_LEFT, tx, c.y1 + S(8), r, title);
   char score[24];
   scoreText(m, score, sizeof(score));
@@ -150,17 +150,17 @@ void drawNote(lv_event_t* ev) {
   du::text(layer, fm, C(theme::C_TEXT), LV_TEXT_ALIGN_RIGHT, tx, c.y1 + S(34), r, score);
   const char* left = rc::matchLeagueTr(m.league);
   uint32_t col = theme::C_TEXT2;
-  if (s_noteShown == N_HALF) left = "Devre arası";
+  if (s_noteShown == N_HALF) left = rc::L("Devre arası", "Half-time break");
   char who[40];
   if (s_noteShown == N_CANCEL) {
     bool home = s_cancelOurs == (m.usHome == 1);
-    snprintf(who, sizeof(who), "%s golü", home ? m.home.name : m.away.name);
+    snprintf(who, sizeof(who), rc::L("%s golü", "%s goal"), home ? m.home.name : m.away.name);
     left = who;
     col = s_cancelOurs ? theme::C_TEXT2 : theme::C_NEON_GREEN;
   }
   if (s_noteShown == N_FULL) {
     int d = ourGoals(m) - theirGoals(m);
-    left = d > 0 ? "Kazandık!" : d == 0 ? "Berabere" : "Kaybettik";
+    left = d > 0 ? rc::L("Kazandık!", "We won!") : d == 0 ? rc::L("Berabere", "Draw") : rc::L("Kaybettik", "We lost");
     if (d > 0) col = theme::team();
   }
   char fitted[48];
@@ -208,7 +208,7 @@ void drawBoardToast(lv_event_t* ev) {
   char fitted[40];
   int32_t px = tx + ballW;
   du::text(layer, fm, hot, LV_TEXT_ALIGN_LEFT, px, y, r - mw - S(10),
-           du::fit(fm, g.player[0] ? g.player : "Gol", r - mw - S(10) - px, fitted, sizeof(fitted)));
+           du::fit(fm, g.player[0] ? g.player : rc::L("Gol", "Goal"), r - mw - S(10) - px, fitted, sizeof(fitted)));
 }
 
 void react(uint8_t mood, uint32_t ms) {
@@ -432,7 +432,7 @@ void scoreText(const rc::Match& m, char* out, size_t cap) {
 void kickoffText(const rc::Match& m, char* out, size_t cap) {
   rc::LocalTime lt = rc::toLocal(m.kickoffUtc);
   int32_t days = rc::localDayNum(m.kickoffUtc) - clk::todayDayNum();
-  const char* day = days == 0 ? "Bugün" : days == 1 ? "Yarın" : rc::dayShortTr(lt.wday);
+  const char* day = days == 0 ? rc::L("Bugün", "Today") : days == 1 ? rc::L("Yarın", "Tomorrow") : rc::dayShortTr(lt.wday);
   snprintf(out, cap, "%s %02u:%02u", day, static_cast<unsigned>(lt.hour), static_cast<unsigned>(lt.minute));
 }
 
@@ -542,7 +542,7 @@ void drawGameRow(lv_layer_t* layer, int32_t x1, int32_t x2, int32_t y, int32_t h
     rc::LocalTime lt = rc::toLocal(g.kickoffUtc);
     snprintf(t, sizeof(t), "%02u:%02u", static_cast<unsigned>(lt.hour), static_cast<unsigned>(lt.minute));
   } else if (g.phase == rc::MP_HALF) {
-    snprintf(t, sizeof(t), "İY");
+    snprintf(t, sizeof(t), "%s", rc::L("İY", "HT"));
     tc = C(theme::C_TEXT2);
   } else if (g.phase == rc::MP_POST) {
     snprintf(t, sizeof(t), "MS");

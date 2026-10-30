@@ -23,6 +23,7 @@
 #include "ui/ui.h"
 #include "weather/weather.h"
 #include "wiz/wiz.h"
+#include "text_tr.h"
 
 namespace {
 
@@ -59,12 +60,12 @@ void fatal(const char* what) {
     g.setTextColor(0xFFFFu, 0x0000u);
     g.setTextSize(2);
     g.setCursor(12, 90);
-    g.print("Rumy baslatilamadi");
+    g.print(rc::L("Rumy baslatilamadi", "Rumy failed to start"));
     g.setTextSize(1);
     g.setCursor(12, 124);
     g.print(what);
     g.setCursor(12, 140);
-    g.print("10 sn sonra yeniden denenecek");
+    g.print(rc::L("10 sn sonra yeniden denenecek", "Retrying in 10 s"));
   }
   vTaskDelay(pdMS_TO_TICKS(10000));
   ESP.restart();

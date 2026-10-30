@@ -13,6 +13,7 @@
 #include "theme.h"
 #include "ui.h"
 #include "wiz/wiz.h"
+#include "text_tr.h"
 
 namespace agents_ui {
 
@@ -78,7 +79,7 @@ void drawToast(lv_event_t* ev) {
   int32_t tx = c.x1 + S(42);
   int32_t rx = c.x2 - S(12);
   char head[40];
-  snprintf(head, sizeof(head), "%s %s", rc::agentName(r.agent), wait ? "seni bekliyor" : "işini bitirdi");
+  snprintf(head, sizeof(head), "%s %s", rc::agentName(r.agent), wait ? rc::L("seni bekliyor", "is waiting for you") : rc::L("işini bitirdi", "finished its task"));
   du::text(layer, fm, C(theme::C_TEXT), LV_TEXT_ALIGN_LEFT, tx, c.y1 + S(8), rx, head);
   const lv_font_t* fs = theme::fontS();
   char fitted[48];
@@ -87,11 +88,11 @@ void drawToast(lv_event_t* ev) {
            du::fit(fs, r.project, rx - px, fitted, sizeof(fitted)));
   char tail[56];
   if (wait) {
-    snprintf(tail, sizeof(tail), "%s", r.detail[0] ? r.detail : "Cevabını bekliyor");
+    snprintf(tail, sizeof(tail), "%s", r.detail[0] ? r.detail : rc::L("Cevabını bekliyor", "Waiting for your answer"));
   } else {
     char span[16];
     rc::agentSpanTr(r.workS, span, sizeof(span));
-    snprintf(tail, sizeof(tail), "%s sürdü", span);
+    snprintf(tail, sizeof(tail), rc::L("%s sürdü", "took %s"), span);
   }
   du::text(layer, fm, C(wait ? color(rc::AG_WAIT) : theme::C_TEXT2), LV_TEXT_ALIGN_LEFT, tx, c.y1 + S(34), rx,
            du::fit(fm, tail, rx - tx, fitted, sizeof(fitted)));
@@ -224,17 +225,17 @@ void lineText(const rc::AgentRow& r, char* out, size_t cap) {
   rc::agentSpanTr(agents::spanS(r), span, sizeof(span));
   if (r.status == rc::AG_IDLE) {
     if (r.detail[0]) {
-      snprintf(out, cap, "%s · %s önce", r.detail, span);
+      snprintf(out, cap, rc::L("%s · %s önce", "%s · %s ago"), r.detail, span);
     } else if (r.workS >= 60) {
       char work[16];
       rc::agentSpanTr(r.workS, work, sizeof(work));
-      snprintf(out, cap, "Bitti · %s önce · %s sürdü", span, work);
+      snprintf(out, cap, rc::L("Bitti · %s önce · %s sürdü", "Done · %s ago · took %s"), span, work);
     } else {
-      snprintf(out, cap, "Bitti · %s önce", span);
+      snprintf(out, cap, rc::L("Bitti · %s önce", "Done · %s ago"), span);
     }
     return;
   }
-  const char* what = r.detail[0] ? r.detail : r.status == rc::AG_WAIT ? "Seni bekliyor" : "Çalışıyor";
+  const char* what = r.detail[0] ? r.detail : r.status == rc::AG_WAIT ? rc::L("Seni bekliyor", "Waiting for you") : rc::L("Çalışıyor", "Working");
   snprintf(out, cap, "%s · %s", what, span);
 }
 
@@ -244,7 +245,7 @@ void summary(const rc::Agents& a, char* out, size_t cap) {
   const struct {
     uint8_t count;
     const char* word;
-  } parts[] = {{a.wait, "bekliyor"}, {a.work, "çalışıyor"}, {a.idle, "bitti"}};
+  } parts[] = {{a.wait, rc::L("bekliyor", "waiting")}, {a.work, rc::L("çalışıyor", "working")}, {a.idle, rc::L("bitti", "done")}};
   for (const auto& p : parts) {
     if (!p.count || n >= cap) continue;
     n += static_cast<size_t>(snprintf(out + n, cap - n, "%s%u %s", n ? " · " : "", static_cast<unsigned>(p.count), p.word));

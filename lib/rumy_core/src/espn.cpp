@@ -1,6 +1,7 @@
 #include "espn.h"
 
 #include "espn_board.h"
+#include "text_tr.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -60,6 +61,9 @@ const TeamTr kTeams[] = {
 const char* const kLeagues[] = {"Maç",          "Süper Lig",      "Şampiyonlar Ligi", "Avrupa Ligi", "Konferans Ligi",
                                 "Türkiye Kupası", "Süper Kupa",    "Hazırlık maçı",    "Premier Lig", "LaLiga",
                                 "Serie A",       "Bundesliga",     "Ligue 1"};
+const char* const kLeaguesEn[] = {"Match",          "Süper Lig",  "Champions League", "Europa League", "Conference League",
+                                  "Turkish Cup",    "Super Cup",  "Friendly",         "Premier League", "LaLiga",
+                                  "Serie A",        "Bundesliga", "Ligue 1"};
 
 const char* const kSlugs[] = {"",      "tur.1", "uefa.champions", "uefa.europa", "uefa.europa.conf", "", "", "",
                               "eng.1", "esp.1", "ita.1",          "ger.1",       "fra.1"};
@@ -122,7 +126,8 @@ uint8_t espnLeague(const char* slug) {
 const char* espnLeagueSlug(uint8_t league) { return league < ML_COUNT ? kSlugs[league] : ""; }
 
 const char* matchLeagueTr(uint8_t league) {
-  return league < sizeof(kLeagues) / sizeof(kLeagues[0]) ? kLeagues[league] : kLeagues[0];
+  const char* const* t = langEn() ? kLeaguesEn : kLeagues;
+  return league < sizeof(kLeagues) / sizeof(kLeagues[0]) ? t[league] : t[0];
 }
 
 bool espnTeamTurkish(const char* name, MatchSide& out) {
@@ -765,7 +770,7 @@ void espnZoneTr(const char* description, char* out, size_t cap) {
   description = description ? description : "";
   for (const ZoneTr& z : kZones) {
     if (!strcmp(description, z.espn)) {
-      copyText(out, cap, z.tr);
+      copyText(out, cap, langEn() ? z.espn : z.tr);
       return;
     }
   }
