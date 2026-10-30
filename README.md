@@ -1,5 +1,7 @@
 # Rumy
 
+[English](README.en.md) · **Türkçe** · [Tarayıcıdan kur](https://sudomrspear.github.io/Rumy/)
+
 ESP32-2432S028R ("Cheap Yellow Display", CYD) için masaüstü arkadaşı. Siyah ekranda parlayan iki camgöbeği gözden oluşan
 Rumy; saati, hava durumunu, Marmara depremlerini, bayramları ve senin önemli günlerini gösterir, WiZ ampulünü yönetir.
 
@@ -127,8 +129,10 @@ python -m esptool --chip esp32 --baud 460800 read_flash 0 0x400000 yedek/eski_ya
 python -m esptool --chip esp32 --baud 460800 write_flash --erase-all 0x0 Rumy-1.3.0-ILI9341-tam-0x0.bin
 ```
 
-Kurulu bir Python yoksa aynı dosyayı Chrome ya da Edge'de Espressif'in tarayıcıdan yükleyicisiyle de yazabilirsin
-(adres `0x0`).
+Kurulu bir Python yoksa en kolayı **[web kurulum sayfası](https://sudomrspear.github.io/Rumy/)**: bilgisayarda
+Chrome ya da Edge ile aç, panel tipini seç, kartı USB'den bağla ve **Kur**'a bas; açılan pencerede **Erase device**
+seçeneğini işaretle. Sayfa son sürümün tam imajını yazar (`.github/workflows/web_kurulum.yml` her yeni sürümde
+yeniden yayınlar). Aynı dosyayı Espressif'in tarayıcıdan yükleyicisiyle de yazabilirsin (adres `0x0`).
 
 CYD'deki CH340 köprüsü kartı kendisi yükleme moduna alır, BOOT tuşuna basmak gerekmez. Bağlanamazsa BOOT'a basılı
 tut, RST'ye bas-bırak, BOOT'u bırak: kart yeniden başlatılana kadar yükleme modunda bekler. 921600 baud bazı
